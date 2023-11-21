@@ -350,7 +350,7 @@ const Cone_Tip = defs.Cone_Tip =
 const Torus = defs.Torus =
     class Torus extends Shape {
         // Build a donut shape.  An example of a surface of revolution.
-        constructor(rows, columns, texture_range=[[0, 1], [0, 1]]) {
+        constructor(rows, columns, texture_range) {
             super("position", "normal", "texture_coord");
             const circle_points = Array(rows).fill(vec3(1 / 3, 0, 0))
                 .map((p, i, a) => Mat4.translation(-2 / 3, 0, 0)
@@ -570,7 +570,7 @@ const Funny_Shader = defs.Funny_Shader =
 
 const Phong_Shader = defs.Phong_Shader =
     class Phong_Shader extends Shader {
-        // **Phong_Shader** is a subclass of Shader, which stores and manages a GPU program.
+        // **Phong_Shader** is a subclass of Shader, which stores and maanges a GPU program.
         // Graphic cards prior to year 2000 had shaders like this one hard-coded into them
         // instead of customizable shaders.  "Phong-Blinn" Shading here is a process of
         // determining brightness of pixels via vector math.  It compares the normal vector
@@ -753,7 +753,8 @@ const Textured_Phong = defs.Textured_Phong =
             return this.shared_glsl_code() + `
                 varying vec2 f_tex_coord;
                 uniform sampler2D texture;
-        
+                uniform float animation_time;
+                
                 void main(){
                     // Sample the texture image in the correct place:
                     vec4 tex_color = texture2D( texture, f_tex_coord );
@@ -768,7 +769,8 @@ const Textured_Phong = defs.Textured_Phong =
         update_GPU(context, gpu_addresses, gpu_state, model_transform, material) {
             // update_GPU(): Add a little more to the base class's version of this method.
             super.update_GPU(context, gpu_addresses, gpu_state, model_transform, material);
-
+            // Updated for assignment 4
+            context.uniform1f(gpu_addresses.animation_time, gpu_state.animation_time / 1000);
             if (material.texture && material.texture.ready) {
                 // Select texture unit 0 for the fragment shader Sampler2D uniform called "texture":
                 context.uniform1i(gpu_addresses.texture, 0);
@@ -869,24 +871,24 @@ const Movement_Controls = defs.Movement_Controls =
         make_control_panel() {
             // make_control_panel(): Sets up a panel of interactive HTML elements, including
             // buttons with key bindings for affecting this scene, and live info readouts.
-            this.control_panel.innerHTML += "Click and drag the scene to spin your viewpoint around it.<br>";
-            this.live_string(box => box.textContent = "- Position: " + this.pos[0].toFixed(2) + ", " + this.pos[1].toFixed(2)
-                + ", " + this.pos[2].toFixed(2));
-            this.new_line();
-            // The facing directions are surprisingly affected by the left hand rule:
-            this.live_string(box => box.textContent = "- Facing: " + ((this.z_axis[0] > 0 ? "West " : "East ")
-                + (this.z_axis[1] > 0 ? "Down " : "Up ") + (this.z_axis[2] > 0 ? "North" : "South")));
-            this.new_line();
-            this.new_line();
+            //this.control_panel.innerHTML += "Click and drag the scene to spin your viewpoint around it.<br>";
+            // this.live_string(box => box.textContent = "- Position: " + this.pos[0].toFixed(2) + ", " + this.pos[1].toFixed(2)
+            //     + ", " + this.pos[2].toFixed(2));
+            // this.new_line();
+            // // The facing directions are surprisingly affected by the left hand rule:
+            // this.live_string(box => box.textContent = "- Facing: " + ((this.z_axis[0] > 0 ? "West " : "East ")
+            //     + (this.z_axis[1] > 0 ? "Down " : "Up ") + (this.z_axis[2] > 0 ? "North" : "South")));
+            // this.new_line();
+            // this.new_line();
 
-            this.key_triggered_button("Up", [" "], () => this.thrust[1] = -1, undefined, () => this.thrust[1] = 0);
+            //this.key_triggered_button("Up", [" "], () => this.thrust[1] = -1, undefined, () => this.thrust[1] = 0);
             this.key_triggered_button("Forward", ["w"], () => this.thrust[2] = 1, undefined, () => this.thrust[2] = 0);
-            this.new_line();
+            //this.new_line();
             this.key_triggered_button("Left", ["a"], () => this.thrust[0] = 1, undefined, () => this.thrust[0] = 0);
             this.key_triggered_button("Back", ["s"], () => this.thrust[2] = -1, undefined, () => this.thrust[2] = 0);
             this.key_triggered_button("Right", ["d"], () => this.thrust[0] = -1, undefined, () => this.thrust[0] = 0);
             this.new_line();
-            this.key_triggered_button("Down", ["z"], () => this.thrust[1] = 1, undefined, () => this.thrust[1] = 0);
+            //this.key_triggered_button("Down", ["z"], () => this.thrust[1] = 1, undefined, () => this.thrust[1] = 0);
 
             const speed_controls = this.control_panel.appendChild(document.createElement("span"));
             speed_controls.style.margin = "30px";

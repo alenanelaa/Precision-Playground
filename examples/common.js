@@ -843,27 +843,83 @@ const Movement_Controls = defs.Movement_Controls =
         }
 
         add_mouse_controls(canvas) {
-            // add_mouse_controls():  Attach HTML mouse events to the drawing canvas.
-            // First, measure mouse steering, for rotating the flyaround camera:
-            this.mouse = {"from_center": vec(0, 0)};
-            const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
-                vec(e.clientX - (rect.left + rect.right) / 2, e.clientY - (rect.bottom + rect.top) / 2);
-            // Set up mouse response.  The last one stops us from reacting if the mouse leaves the canvas:
-            document.addEventListener("mouseup", e => {
-                this.mouse.anchor = undefined;
+            const requestPointerLock = () => {
+                canvas.requestPointerLock =
+                    canvas.requestPointerLock ||
+                    canvas.mozRequestPointerLock ||
+                    canvas.webkitRequestPointerLock;
+        
+                if (canvas.requestPointerLock) {
+                    canvas.requestPointerLock();
+                }
+            };
+        
+            const exitPointerLock = () => {
+                document.exitPointerLock =
+                    document.exitPointerLock ||
+                    document.mozExitPointerLock ||
+                    document.webkitExitPointerLock;
+        
+                if (document.exitPointerLock) {
+                    document.exitPointerLock();
+                }
+            };
+        
+            canvas.addEventListener('click', () => {
+                if (!document.pointerLockElement) {
+                    requestPointerLock();
+                }
             });
-            canvas.addEventListener("mousedown", e => {
-                e.preventDefault();
-                this.mouse.anchor = mouse_position(e);
-            });
-            canvas.addEventListener("mousemove", e => {
-                e.preventDefault();
-                this.mouse.from_center = mouse_position(e);
-            });
-            canvas.addEventListener("mouseout", e => {
-                if (!this.mouse.anchor) this.mouse.from_center.scale_by(0)
+        
+            const sensitivity = 0.002; // Adjust sensitivity as needed
+        
+            const handleMouseMovement = (event) => {
+                if (document.pointerLockElement === canvas) {
+                    const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+                    const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+        
+                    // Use movementX and movementY to control the camera orientation
+                    // Example: Update camera orientation based on mouse movement
+                    this.cameraRotation(movementX * sensitivity, movementY * sensitivity);
+                }
+            };
+        
+            document.addEventListener('mousemove', handleMouseMovement);
+        
+            document.addEventListener('pointerlockchange', () => {
+                if (!document.pointerLockElement) {
+                    canvas.removeEventListener('mousemove', handleMouseMovement);
+                    exitPointerLock();
+                }
             });
         }
+        
+        cameraRotation(deltaX, deltaY) {
+            
+        }
+        // add_mouse_controls(canvas) {
+        //     // add_mouse_controls():  Attach HTML mouse events to the drawing canvas.
+        //     // First, measure mouse steering, for rotating the flyaround camera:
+        //     this.mouse = {"from_center": vec(0, 0)};
+        //     const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
+        //         vec(e.clientX - (rect.left + rect.right) / 2, e.clientY - (rect.bottom + rect.top) / 2);
+        //     // Set up mouse response.  The last one stops us from reacting if the mouse leaves the canvas:
+
+        //     document.addEventListener("mouseup", e => {
+        //         this.mouse.anchor = undefined;
+        //     });
+        //     canvas.addEventListener("mousedown", e => {
+        //         e.preventDefault();  
+        //         this.mouse.anchor = mouse_position(e);
+        //     });
+        //     canvas.addEventListener("mousemove", e => {
+        //         e.preventDefault();
+        //         this.mouse.from_center = mouse_position(e);
+        //     });
+        //     canvas.addEventListener("mouseout", e => {
+        //         if (!this.mouse.anchor) this.mouse.from_center.scale_by(0)
+        //     });
+        // }
 
         show_explanation(document_element) {
         }
@@ -882,61 +938,61 @@ const Movement_Controls = defs.Movement_Controls =
             // this.new_line();
 
             //this.key_triggered_button("Up", [" "], () => this.thrust[1] = -1, undefined, () => this.thrust[1] = 0);
-            this.key_triggered_button("Forward", ["w"], () => this.thrust[2] = 1, undefined, () => this.thrust[2] = 0);
+            this.key_triggered_button("Forward", ["w"], () => this.thrust[2] = 0.6, undefined, () => this.thrust[2] = 0);
             //this.new_line();
-            this.key_triggered_button("Left", ["a"], () => this.thrust[0] = 1, undefined, () => this.thrust[0] = 0);
-            this.key_triggered_button("Back", ["s"], () => this.thrust[2] = -1, undefined, () => this.thrust[2] = 0);
-            this.key_triggered_button("Right", ["d"], () => this.thrust[0] = -1, undefined, () => this.thrust[0] = 0);
+            this.key_triggered_button("Left", ["a"], () => this.thrust[0] = 0.6, undefined, () => this.thrust[0] = 0);
+            this.key_triggered_button("Back", ["s"], () => this.thrust[2] = -0.6, undefined, () => this.thrust[2] = 0);
+            this.key_triggered_button("Right", ["d"], () => this.thrust[0] = -0.6, undefined, () => this.thrust[0] = 0);
             this.new_line();
             //this.key_triggered_button("Down", ["z"], () => this.thrust[1] = 1, undefined, () => this.thrust[1] = 0);
 
-            const speed_controls = this.control_panel.appendChild(document.createElement("span"));
-            speed_controls.style.margin = "30px";
-            this.key_triggered_button("-", ["o"], () =>
-                this.speed_multiplier /= 1.2, undefined, undefined, undefined, speed_controls);
-            this.live_string(box => {
-                box.textContent = "Speed: " + this.speed_multiplier.toFixed(2)
-            }, speed_controls);
-            this.key_triggered_button("+", ["p"], () =>
-                this.speed_multiplier *= 1.2, undefined, undefined, undefined, speed_controls);
-            this.new_line();
-            this.key_triggered_button("Roll left", [","], () => this.roll = 1, undefined, () => this.roll = 0);
-            this.key_triggered_button("Roll right", ["."], () => this.roll = -1, undefined, () => this.roll = 0);
-            this.new_line();
-            this.key_triggered_button("(Un)freeze mouse look around", ["f"], () => this.look_around_locked ^= 1, "#8B8885");
-            this.new_line();
-            this.key_triggered_button("Go to world origin", ["r"], () => {
-                this.matrix().set_identity(4, 4);
-                this.inverse().set_identity(4, 4)
-            }, "#8B8885");
-            this.new_line();
+            // const speed_controls = this.control_panel.appendChild(document.createElement("span"));
+            // speed_controls.style.margin = "30px";
+            // this.key_triggered_button("-", ["o"], () =>
+            //     this.speed_multiplier /= 1.2, undefined, undefined, undefined, speed_controls);
+            // this.live_string(box => {
+            //     box.textContent = "Speed: " + this.speed_multiplier.toFixed(2)
+            // }, speed_controls);
+            // this.key_triggered_button("+", ["p"], () =>
+            //     this.speed_multiplier *= 1.2, undefined, undefined, undefined, speed_controls);
+            // this.new_line();
+            // this.key_triggered_button("Roll left", [","], () => this.roll = 1, undefined, () => this.roll = 0);
+            // this.key_triggered_button("Roll right", ["."], () => this.roll = -1, undefined, () => this.roll = 0);
+            // this.new_line();
+            // this.key_triggered_button("(Un)freeze mouse look around", ["f"], () => this.look_around_locked ^= 1, "#8B8885");
+            // this.new_line();
+            // this.key_triggered_button("Go to world origin", ["r"], () => {
+            //     this.matrix().set_identity(4, 4);
+            //     this.inverse().set_identity(4, 4)
+            // }, "#8B8885");
+            // this.new_line();
 
-            this.key_triggered_button("Look at origin from front", ["1"], () => {
-                this.inverse().set(Mat4.look_at(vec3(0, 0, 10), vec3(0, 0, 0), vec3(0, 1, 0)));
-                this.matrix().set(Mat4.inverse(this.inverse()));
-            }, "#8B8885");
-            this.new_line();
-            this.key_triggered_button("from right", ["2"], () => {
-                this.inverse().set(Mat4.look_at(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 1, 0)));
-                this.matrix().set(Mat4.inverse(this.inverse()));
-            }, "#8B8885");
-            this.key_triggered_button("from rear", ["3"], () => {
-                this.inverse().set(Mat4.look_at(vec3(0, 0, -10), vec3(0, 0, 0), vec3(0, 1, 0)));
-                this.matrix().set(Mat4.inverse(this.inverse()));
-            }, "#8B8885");
-            this.key_triggered_button("from left", ["4"], () => {
-                this.inverse().set(Mat4.look_at(vec3(-10, 0, 0), vec3(0, 0, 0), vec3(0, 1, 0)));
-                this.matrix().set(Mat4.inverse(this.inverse()));
-            }, "#8B8885");
-            this.new_line();
-            this.key_triggered_button("Attach to global camera", ["Shift", "R"],
-                () => {
-                    this.will_take_over_graphics_state = true
-                }, "#8B8885");
-            this.new_line();
+            // this.key_triggered_button("Look at origin from front", ["1"], () => {
+            //     this.inverse().set(Mat4.look_at(vec3(0, 0, 10), vec3(0, 0, 0), vec3(0, 1, 0)));
+            //     this.matrix().set(Mat4.inverse(this.inverse()));
+            // }, "#8B8885");
+            // this.new_line();
+            // this.key_triggered_button("from right", ["2"], () => {
+            //     this.inverse().set(Mat4.look_at(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 1, 0)));
+            //     this.matrix().set(Mat4.inverse(this.inverse()));
+            // }, "#8B8885");
+            // this.key_triggered_button("from rear", ["3"], () => {
+            //     this.inverse().set(Mat4.look_at(vec3(0, 0, -10), vec3(0, 0, 0), vec3(0, 1, 0)));
+            //     this.matrix().set(Mat4.inverse(this.inverse()));
+            // }, "#8B8885");
+            // this.key_triggered_button("from left", ["4"], () => {
+            //     this.inverse().set(Mat4.look_at(vec3(-10, 0, 0), vec3(0, 0, 0), vec3(0, 1, 0)));
+            //     this.matrix().set(Mat4.inverse(this.inverse()));
+            // }, "#8B8885");
+            // this.new_line();
+            // this.key_triggered_button("Attach to global camera", ["Shift", "R"],
+            //     () => {
+            //         this.will_take_over_graphics_state = true
+            //     }, "#8B8885");
+            // this.new_line();
         }
 
-        first_person_flyaround(radians_per_frame, meters_per_frame, leeway = 70) {
+        first_person_flyaround(radians_per_frame, meters_per_frame, leeway = 0) {
             // (Internal helper function)
             // Compare mouse's location to all four corners of a dead box:
             const offsets_from_dead_box = {

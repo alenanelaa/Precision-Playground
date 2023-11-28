@@ -16,7 +16,7 @@ export class PrecisionPlayground extends Scene {
         super();
 
         this.shapes = {
-            test: new Cube()
+            floor: new Cube()
         };
 
         this.materials = {
@@ -25,6 +25,10 @@ export class PrecisionPlayground extends Scene {
                 ambient: 1, diffusivity: 0.5, specularity: 0.5
             })
         };
+
+        this.flags = {
+            paused: false
+        }
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
     }
@@ -51,7 +55,10 @@ export class PrecisionPlayground extends Scene {
         let t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
 
-        this.shapes.test.draw(context, program_state, model_transform, this.materials.test);
+        let floor_transform = model_transform.times(Mat4.scale(5, 0.1, 5))
+                                .times(Mat4.translation(0, -10, 0));
+
+        this.shapes.floor.draw(context, program_state, floor_transform, this.materials.test);
 
     }
 }

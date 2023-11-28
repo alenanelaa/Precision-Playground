@@ -350,7 +350,7 @@ const Cone_Tip = defs.Cone_Tip =
 const Torus = defs.Torus =
     class Torus extends Shape {
         // Build a donut shape.  An example of a surface of revolution.
-        constructor(rows, columns, texture_range) {
+        constructor(rows, columns, texture_range=[[0, 1], [0, 1]]) {
             super("position", "normal", "texture_coord");
             const circle_points = Array(rows).fill(vec3(1 / 3, 0, 0))
                 .map((p, i, a) => Mat4.translation(-2 / 3, 0, 0)
@@ -570,7 +570,7 @@ const Funny_Shader = defs.Funny_Shader =
 
 const Phong_Shader = defs.Phong_Shader =
     class Phong_Shader extends Shader {
-        // **Phong_Shader** is a subclass of Shader, which stores and maanges a GPU program.
+        // **Phong_Shader** is a subclass of Shader, which stores and manages a GPU program.
         // Graphic cards prior to year 2000 had shaders like this one hard-coded into them
         // instead of customizable shaders.  "Phong-Blinn" Shading here is a process of
         // determining brightness of pixels via vector math.  It compares the normal vector
@@ -753,8 +753,7 @@ const Textured_Phong = defs.Textured_Phong =
             return this.shared_glsl_code() + `
                 varying vec2 f_tex_coord;
                 uniform sampler2D texture;
-                uniform float animation_time;
-                
+        
                 void main(){
                     // Sample the texture image in the correct place:
                     vec4 tex_color = texture2D( texture, f_tex_coord );
@@ -769,8 +768,7 @@ const Textured_Phong = defs.Textured_Phong =
         update_GPU(context, gpu_addresses, gpu_state, model_transform, material) {
             // update_GPU(): Add a little more to the base class's version of this method.
             super.update_GPU(context, gpu_addresses, gpu_state, model_transform, material);
-            // Updated for assignment 4
-            context.uniform1f(gpu_addresses.animation_time, gpu_state.animation_time / 1000);
+
             if (material.texture && material.texture.ready) {
                 // Select texture unit 0 for the fragment shader Sampler2D uniform called "texture":
                 context.uniform1i(gpu_addresses.texture, 0);
@@ -825,6 +823,7 @@ const Movement_Controls = defs.Movement_Controls =
 
             this.mouse_enabled_canvases = new Set();
             this.will_take_over_graphics_state = true;
+			
         }
 
         set_recipient(matrix_closure, inverse_closure) {
@@ -843,83 +842,27 @@ const Movement_Controls = defs.Movement_Controls =
         }
 
         add_mouse_controls(canvas) {
-            const requestPointerLock = () => {
-                canvas.requestPointerLock =
-                    canvas.requestPointerLock ||
-                    canvas.mozRequestPointerLock ||
-                    canvas.webkitRequestPointerLock;
-        
-                if (canvas.requestPointerLock) {
-                    canvas.requestPointerLock();
-                }
-            };
-        
-            const exitPointerLock = () => {
-                document.exitPointerLock =
-                    document.exitPointerLock ||
-                    document.mozExitPointerLock ||
-                    document.webkitExitPointerLock;
-        
-                if (document.exitPointerLock) {
-                    document.exitPointerLock();
-                }
-            };
-        
-            canvas.addEventListener('click', () => {
-                if (!document.pointerLockElement) {
-                    requestPointerLock();
-                }
+            // add_mouse_controls():  Attach HTML mouse events to the drawing canvas.
+            // First, measure mouse steering, for rotating the flyaround camera:
+            this.mouse = {"from_center": vec(0, 0)};
+            const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
+                vec(e.clientX - (rect.left + rect.right) / 2, e.clientY - (rect.bottom + rect.top) / 2);
+            // Set up mouse response.  The last one stops us from reacting if the mouse leaves the canvas:
+            document.addEventListener("mouseup", e => {
+                this.mouse.anchor = undefined;
             });
-        
-            const sensitivity = 0.002; // Adjust sensitivity as needed
-        
-            const handleMouseMovement = (event) => {
-                if (document.pointerLockElement === canvas) {
-                    const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-                    const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-        
-                    // Use movementX and movementY to control the camera orientation
-                    // Example: Update camera orientation based on mouse movement
-                    this.cameraRotation(movementX * sensitivity, movementY * sensitivity);
-                }
-            };
-        
-            document.addEventListener('mousemove', handleMouseMovement);
-        
-            document.addEventListener('pointerlockchange', () => {
-                if (!document.pointerLockElement) {
-                    canvas.removeEventListener('mousemove', handleMouseMovement);
-                    exitPointerLock();
-                }
+            canvas.addEventListener("mousedown", e => {
+                e.preventDefault();
+                this.mouse.anchor = mouse_position(e);
+            });
+            canvas.addEventListener("mousemove", e => {
+                e.preventDefault();
+                this.mouse.from_center = mouse_position(e);
+            });
+            canvas.addEventListener("mouseout", e => {
+                if (!this.mouse.anchor) this.mouse.from_center.scale_by(0)
             });
         }
-        
-        cameraRotation(deltaX, deltaY) {
-            
-        }
-        // add_mouse_controls(canvas) {
-        //     // add_mouse_controls():  Attach HTML mouse events to the drawing canvas.
-        //     // First, measure mouse steering, for rotating the flyaround camera:
-        //     this.mouse = {"from_center": vec(0, 0)};
-        //     const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
-        //         vec(e.clientX - (rect.left + rect.right) / 2, e.clientY - (rect.bottom + rect.top) / 2);
-        //     // Set up mouse response.  The last one stops us from reacting if the mouse leaves the canvas:
-
-        //     document.addEventListener("mouseup", e => {
-        //         this.mouse.anchor = undefined;
-        //     });
-        //     canvas.addEventListener("mousedown", e => {
-        //         e.preventDefault();  
-        //         this.mouse.anchor = mouse_position(e);
-        //     });
-        //     canvas.addEventListener("mousemove", e => {
-        //         e.preventDefault();
-        //         this.mouse.from_center = mouse_position(e);
-        //     });
-        //     canvas.addEventListener("mouseout", e => {
-        //         if (!this.mouse.anchor) this.mouse.from_center.scale_by(0)
-        //     });
-        // }
 
         show_explanation(document_element) {
         }
@@ -927,72 +870,72 @@ const Movement_Controls = defs.Movement_Controls =
         make_control_panel() {
             // make_control_panel(): Sets up a panel of interactive HTML elements, including
             // buttons with key bindings for affecting this scene, and live info readouts.
-            //this.control_panel.innerHTML += "Click and drag the scene to spin your viewpoint around it.<br>";
-            // this.live_string(box => box.textContent = "- Position: " + this.pos[0].toFixed(2) + ", " + this.pos[1].toFixed(2)
-            //     + ", " + this.pos[2].toFixed(2));
-            // this.new_line();
-            // // The facing directions are surprisingly affected by the left hand rule:
-            // this.live_string(box => box.textContent = "- Facing: " + ((this.z_axis[0] > 0 ? "West " : "East ")
-            //     + (this.z_axis[1] > 0 ? "Down " : "Up ") + (this.z_axis[2] > 0 ? "North" : "South")));
-            // this.new_line();
-            // this.new_line();
-
-            //this.key_triggered_button("Up", [" "], () => this.thrust[1] = -1, undefined, () => this.thrust[1] = 0);
-            this.key_triggered_button("Forward", ["w"], () => this.thrust[2] = 0.6, undefined, () => this.thrust[2] = 0);
-            //this.new_line();
-            this.key_triggered_button("Left", ["a"], () => this.thrust[0] = 0.6, undefined, () => this.thrust[0] = 0);
-            this.key_triggered_button("Back", ["s"], () => this.thrust[2] = -0.6, undefined, () => this.thrust[2] = 0);
-            this.key_triggered_button("Right", ["d"], () => this.thrust[0] = -0.6, undefined, () => this.thrust[0] = 0);
+            this.control_panel.innerHTML += "Click and drag the scene to spin your viewpoint around it.<br>";
+            this.live_string(box => box.textContent = "- Position: " + this.pos[0].toFixed(2) + ", " + this.pos[1].toFixed(2)
+                + ", " + this.pos[2].toFixed(2));
             this.new_line();
-            //this.key_triggered_button("Down", ["z"], () => this.thrust[1] = 1, undefined, () => this.thrust[1] = 0);
+            // The facing directions are surprisingly affected by the left hand rule:
+            this.live_string(box => box.textContent = "- Facing: " + ((this.z_axis[0] > 0 ? "West " : "East ")
+                + (this.z_axis[1] > 0 ? "Down " : "Up ") + (this.z_axis[2] > 0 ? "North" : "South")));
+            this.new_line();
+            this.new_line();
 
-            // const speed_controls = this.control_panel.appendChild(document.createElement("span"));
-            // speed_controls.style.margin = "30px";
-            // this.key_triggered_button("-", ["o"], () =>
-            //     this.speed_multiplier /= 1.2, undefined, undefined, undefined, speed_controls);
-            // this.live_string(box => {
-            //     box.textContent = "Speed: " + this.speed_multiplier.toFixed(2)
-            // }, speed_controls);
-            // this.key_triggered_button("+", ["p"], () =>
-            //     this.speed_multiplier *= 1.2, undefined, undefined, undefined, speed_controls);
-            // this.new_line();
-            // this.key_triggered_button("Roll left", [","], () => this.roll = 1, undefined, () => this.roll = 0);
-            // this.key_triggered_button("Roll right", ["."], () => this.roll = -1, undefined, () => this.roll = 0);
-            // this.new_line();
-            // this.key_triggered_button("(Un)freeze mouse look around", ["f"], () => this.look_around_locked ^= 1, "#8B8885");
-            // this.new_line();
-            // this.key_triggered_button("Go to world origin", ["r"], () => {
-            //     this.matrix().set_identity(4, 4);
-            //     this.inverse().set_identity(4, 4)
-            // }, "#8B8885");
-            // this.new_line();
+            this.key_triggered_button("Up", [" "], () => this.thrust[1] = -1, undefined, () => this.thrust[1] = 0);
+            this.key_triggered_button("Forward", ["w"], () => this.thrust[2] = 1, undefined, () => this.thrust[2] = 0);
+            this.new_line();
+            this.key_triggered_button("Left", ["a"], () => this.thrust[0] = 1, undefined, () => this.thrust[0] = 0);
+            this.key_triggered_button("Back", ["s"], () => this.thrust[2] = -1, undefined, () => this.thrust[2] = 0);
+            this.key_triggered_button("Right", ["d"], () => this.thrust[0] = -1, undefined, () => this.thrust[0] = 0);
+            this.new_line();
+            this.key_triggered_button("Down", ["z"], () => this.thrust[1] = 1, undefined, () => this.thrust[1] = 0);
 
-            // this.key_triggered_button("Look at origin from front", ["1"], () => {
-            //     this.inverse().set(Mat4.look_at(vec3(0, 0, 10), vec3(0, 0, 0), vec3(0, 1, 0)));
-            //     this.matrix().set(Mat4.inverse(this.inverse()));
-            // }, "#8B8885");
-            // this.new_line();
-            // this.key_triggered_button("from right", ["2"], () => {
-            //     this.inverse().set(Mat4.look_at(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 1, 0)));
-            //     this.matrix().set(Mat4.inverse(this.inverse()));
-            // }, "#8B8885");
-            // this.key_triggered_button("from rear", ["3"], () => {
-            //     this.inverse().set(Mat4.look_at(vec3(0, 0, -10), vec3(0, 0, 0), vec3(0, 1, 0)));
-            //     this.matrix().set(Mat4.inverse(this.inverse()));
-            // }, "#8B8885");
-            // this.key_triggered_button("from left", ["4"], () => {
-            //     this.inverse().set(Mat4.look_at(vec3(-10, 0, 0), vec3(0, 0, 0), vec3(0, 1, 0)));
-            //     this.matrix().set(Mat4.inverse(this.inverse()));
-            // }, "#8B8885");
-            // this.new_line();
-            // this.key_triggered_button("Attach to global camera", ["Shift", "R"],
-            //     () => {
-            //         this.will_take_over_graphics_state = true
-            //     }, "#8B8885");
-            // this.new_line();
+            const speed_controls = this.control_panel.appendChild(document.createElement("span"));
+            speed_controls.style.margin = "30px";
+            this.key_triggered_button("-", ["o"], () =>
+                this.speed_multiplier /= 1.2, undefined, undefined, undefined, speed_controls);
+            this.live_string(box => {
+                box.textContent = "Speed: " + this.speed_multiplier.toFixed(2)
+            }, speed_controls);
+            this.key_triggered_button("+", ["p"], () =>
+                this.speed_multiplier *= 1.2, undefined, undefined, undefined, speed_controls);
+            this.new_line();
+            this.key_triggered_button("Roll left", [","], () => this.roll = 1, undefined, () => this.roll = 0);
+            this.key_triggered_button("Roll right", ["."], () => this.roll = -1, undefined, () => this.roll = 0);
+            this.new_line();
+            this.key_triggered_button("(Un)freeze mouse look around", ["f"], () => this.look_around_locked ^= 1, "#8B8885");
+            this.new_line();
+            this.key_triggered_button("Go to world origin", ["r"], () => {
+                this.matrix().set_identity(4, 4);
+                this.inverse().set_identity(4, 4)
+            }, "#8B8885");
+            this.new_line();
+
+            this.key_triggered_button("Look at origin from front", ["1"], () => {
+                this.inverse().set(Mat4.look_at(vec3(0, 0, 10), vec3(0, 0, 0), vec3(0, 1, 0)));
+                this.matrix().set(Mat4.inverse(this.inverse()));
+            }, "#8B8885");
+            this.new_line();
+            this.key_triggered_button("from right", ["2"], () => {
+                this.inverse().set(Mat4.look_at(vec3(10, 0, 0), vec3(0, 0, 0), vec3(0, 1, 0)));
+                this.matrix().set(Mat4.inverse(this.inverse()));
+            }, "#8B8885");
+            this.key_triggered_button("from rear", ["3"], () => {
+                this.inverse().set(Mat4.look_at(vec3(0, 0, -10), vec3(0, 0, 0), vec3(0, 1, 0)));
+                this.matrix().set(Mat4.inverse(this.inverse()));
+            }, "#8B8885");
+            this.key_triggered_button("from left", ["4"], () => {
+                this.inverse().set(Mat4.look_at(vec3(-10, 0, 0), vec3(0, 0, 0), vec3(0, 1, 0)));
+                this.matrix().set(Mat4.inverse(this.inverse()));
+            }, "#8B8885");
+            this.new_line();
+            this.key_triggered_button("Attach to global camera", ["Shift", "R"],
+                () => {
+                    this.will_take_over_graphics_state = true
+                }, "#8B8885");
+            this.new_line();
         }
 
-        first_person_flyaround(radians_per_frame, meters_per_frame, leeway = 0) {
+        first_person_flyaround(radians_per_frame, meters_per_frame, leeway = 70) {
             // (Internal helper function)
             // Compare mouse's location to all four corners of a dead box:
             const offsets_from_dead_box = {

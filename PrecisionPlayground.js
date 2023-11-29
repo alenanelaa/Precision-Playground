@@ -35,8 +35,9 @@ export class PrecisionPlayground extends Scene {
             this.sphere_positions.push(vec3(0, 0, 0));
         }
 
-        this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
-        
+        this.initial_camera_location = Mat4.look_at(vec3(0, 0, -22.36), vec3(0, 0, 0), vec3(0, 1, 0));
+
+
         // Initialize controls in the constructor
         this.make_control_panel();
         this.children.push(this.mouse_controls = new defs.Movement_Controls());
@@ -83,26 +84,23 @@ export class PrecisionPlayground extends Scene {
         let t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
 
-        let floor_transform = model_transform.times(Mat4.scale(5, 0.1, 5))
-            .times(Mat4.translation(0, -10, 0));
+        let floor_transform = model_transform.times(Mat4.translation(0, -5, 0)).times(Mat4.scale(20, 0.1, 20));
+
+
 
         this.shapes.floor.draw(context, program_state, floor_transform, this.materials.test);
 
-        if (!this.sphere_positions[0]) {
-            this.sphere_positions[0] = vec3(0, 0, -5);
-        }
-
-        let dx = (Math.random() - 0.5) * 10 * dt;
-        let dy = (Math.random() - 0.5) * 10 * dt;
-        let dz = (Math.random() - 0.5) * 10 * dt;
-
-        this.sphere_positions[0] = this.sphere_positions[0].plus(vec3(dx, dy, dz));
-
-        if (t % 2 < dt) {
-            this.sphere_positions[0] = vec3((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
+        // Check if two seconds have passed
+        if (t % 1 < dt) {
+            // Update the sphere's position only every two seconds
+            let dx = (Math.random() - 0.5) * 10;
+            let dy = (Math.random() - 0.5) * 10;
+            let dz = (Math.random() - 0.5) * 10;
+            this.sphere_positions[0] = vec3(dx, dy, dz);
         }
 
         let target_transform = model_transform.times(Mat4.translation(...this.sphere_positions[0], 1));
+
 
         console.log("Sphere Position:", this.sphere_positions[0]);
         console.log("Target Transform:", target_transform);

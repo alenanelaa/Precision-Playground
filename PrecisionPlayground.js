@@ -43,16 +43,20 @@ export class PrecisionPlayground extends Scene {
         this.children.push(this.mouse_controls = new defs.Movement_Controls());
     }
 
+    //all this code doesn't even do anything because the object doesn't have a canvas element what even is the fucking point where did this come from
     make_control_panel() {
         this.mouse = { "from_center": vec(0, 0) };
         
         // Assuming this.canvas is your canvas element
         if (this.canvas) {
             this.mouse_controls = new defs.Movement_Controls();
-            this.mouse_controls.add_canvas_listener(this.canvas, (e) => this.mouse_handler(e));
+            this.add_pointer_lock();
+            this.mouse_controls.add_canvas_listener(this.canvas, (e) => this.locked_mouse_handler(e));
         } else {
             console.error("Canvas element not found. Make sure you have a canvas element in your HTML.");
         }
+    }
+
     }
 
     mouse_handler(event) {
@@ -70,8 +74,6 @@ export class PrecisionPlayground extends Scene {
 
     display(context, program_state) {
         if (!context.scratchpad.controls) {
-            this.make_control_panel();
-            this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
             program_state.set_camera(this.initial_camera_location);
         }
 
@@ -102,8 +104,8 @@ export class PrecisionPlayground extends Scene {
         let target_transform = model_transform.times(Mat4.translation(...this.sphere_positions[0], 1));
 
 
-        console.log("Sphere Position:", this.sphere_positions[0]);
-        console.log("Target Transform:", target_transform);
+        // console.log("Sphere Position:", this.sphere_positions[0]);
+        // console.log("Target Transform:", target_transform);
         this.shapes.target.draw(context, program_state, target_transform, this.materials.blue_sphere);
     }
 }

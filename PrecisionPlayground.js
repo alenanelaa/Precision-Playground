@@ -57,8 +57,6 @@ export class PrecisionPlayground extends Scene {
         }
     }
 
-    }
-
     mouse_handler(event) {
         this.mouse.from_center = vec(event.movementX, event.movementY);
 

@@ -87,6 +87,50 @@ export class PrecisionPlayground extends Scene {
         this.camera = new FPSCam(0, 0, 20);
     }
 
+    resetGame() {
+        // Reset game-related variables
+        this.gameStart = false;
+        this.gameOver = false;
+        this.timer = 0;
+        this.paused = false;
+
+        // Reset sphere positions
+        this.sphere_positions = [];
+        for (let i = 0; i < 10; i++) {
+            let new_position;
+            do {
+                new_position = vec3(
+                    (Math.random() - 0.5) * 20,
+                    (Math.random() - 0.5) * 9 + 2,
+                    (Math.random() - 0.5) * 0.01
+                );
+
+                // Check the distance from the new position to all previously generated positions
+                var valid_position = true;
+                for (let j = 0; j < i; j++) {
+                    let distanceSquared =
+                        Math.pow(new_position[0] - this.sphere_positions[j][0], 2) +
+                        Math.pow(new_position[1] - this.sphere_positions[j][1], 2) +
+                        Math.pow(new_position[2] - this.sphere_positions[j][2], 2);
+                    let distance = Math.sqrt(distanceSquared);
+
+                    if (distance < 2) {
+                        valid_position = false;
+                        break;
+                    }
+                }
+            } while (!valid_position);
+
+            this.sphere_positions.push(new_position);
+        }
+
+        // Clear animation queue
+        this.animation_queue = [];
+
+        // Reset timer
+        this.stopTimer();
+    }
+
     shoot(pos, program_state) {
         //pos = [0,0];
         //console.log("Reached")
@@ -244,6 +288,7 @@ export class PrecisionPlayground extends Scene {
         if (this.sphere_positions.length === 0 && !this.gameOver) {
             this.gameOver = true;
             this.stopTimer();
+            this.resetGame();
         }
         while (this.animation_queue.length > 0) {
             if (t > this.animation_queue[0].end_time) {

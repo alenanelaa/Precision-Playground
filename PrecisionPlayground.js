@@ -127,8 +127,7 @@ export class PrecisionPlayground extends Scene {
         // Clear animation queue
         this.animation_queue = [];
 
-        // Reset timer
-        this.stopTimer();
+
     }
 
     shoot(pos, program_state) {

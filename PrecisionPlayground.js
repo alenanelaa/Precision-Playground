@@ -40,7 +40,11 @@ export class PrecisionPlayground extends Scene {
         };
         
         //New Variables (Unused)
-        this.curScore = 0;
+
+        this.gameStart = false;
+        this.gameOver = false;
+        this.timer = 0;
+        this.timerInterval = null;
         this.paused = false; //for pause and play (may wanna change it to be game states)
 
         this.controls = {
@@ -110,6 +114,20 @@ export class PrecisionPlayground extends Scene {
         //console.log(this.animation_queue);
     }
 
+    startTimer() {
+        this.timer = 0;
+        this.timerInterval = window.setInterval(() => {
+            this.timer++;
+        }, 1000); // Increment timer every second (1000 milliseconds)
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            window.clearInterval(this.timerInterval);
+            console.log("Game Over - Timer:", this.timer, "seconds");
+        }
+    }
+
     display(context, program_state) {
         let lookAt = this.camera.lookAt;
         let canvas = context.canvas;
@@ -117,18 +135,21 @@ export class PrecisionPlayground extends Scene {
 
         if (!context.scratchpad.controls) {
             const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
-                vec(
-                    (e.clientX - (rect.left + rect.right)/2) /
-                        ((rect.right - rect.left)/2),
-                    (e.clientY - (rect.bottom + rect.top)/2) /
-                        ((rect.top - rect.bottom)/2)
-                );
-
+            vec(
+              (e.clientX - (rect.left + rect.right) / 2) /
+                ((rect.right - rect.left) / 2),
+              (e.clientY - (rect.bottom + rect.top) / 2) /
+                ((rect.top - rect.bottom) / 2)
+            );
+  
+            
             //PointerLock API
             canvas.addEventListener("mousedown", async (e) => {
                 e.preventDefault();
                 if (!document.pointerLockElement && !this.paused) {
                     await canvas.requestPointerLock();
+                    const initial_mouse_position = mouse_position(e);
+                    this.camera.update_cam(0, 0, this.controls.sens, initial_mouse_position);
                 }
                 canvas.addEventListener("mousemove", (e) => {
                     let del_x = e.movementX;
@@ -141,6 +162,7 @@ export class PrecisionPlayground extends Scene {
                 });
                 this.shoot(mouse_position(e), program_state);
             }, {once: true});
+            
         }
 
         program_state.projection_transform = Mat4.perspective(
@@ -214,6 +236,15 @@ export class PrecisionPlayground extends Scene {
                 this.shapes.target.draw(context, program_state, target_transform, this.materials.blue_sphere);
             }
         }
+        if (this.sphere_positions.length === 9 && !this.gameStart) {
+            this.gameStart = true;
+            this.startTimer();
+        }
+
+        if (this.sphere_positions.length === 0 && !this.gameOver) {
+            this.gameOver = true;
+            this.stopTimer();
+        }
         while (this.animation_queue.length > 0) {
             if (t > this.animation_queue[0].end_time) {
               this.animation_queue.length = 0;
@@ -221,6 +252,7 @@ export class PrecisionPlayground extends Scene {
               break;
             }
           }
+
     }
     }
 

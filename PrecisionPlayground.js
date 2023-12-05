@@ -32,22 +32,52 @@ export class PrecisionPlayground extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/crosshair.png")
             }),
-            skybox_material: new Material(new Phong_Shader(), {
+            skybox_material: new Material(new Phong_Shader(), { 
                 color: hex_color("#87CEEB"), // Sky blue color
                 ambient: 1, diffusivity: 0.5, specularity: 0.5,
-                // texture: new Texture("assets/cracks.jpg"), //placeholder, doesn't work right now.
+                // texture: new Texture("assets/cracks.jpg"), //placeholder, change in the future
             }),
         };
-
+        
+        //New Variables (Unused)
+        this.curScore = 0;
         this.paused = false; //for pause and play (may wanna change it to be game states)
 
         this.controls = {
             sens: 1
         }
+        //Spawn 10 Spheres in random locations
         this.sphere_positions = [];
-        for (let i = 0; i < 6; i++) {
-            this.sphere_positions.push(vec3(0, 0, 0));
+        for (let i = 0; i < 10; i++) {
+            let new_position;
+
+            do {
+                new_position = vec3(
+                    (Math.random() - 0.5) * 20,
+                    (Math.random() - 0.5) * 9+2,
+                    (Math.random() - 0.5) * 0.01
+                );
+
+                // Check the distance from the new position to all previously generated positions
+                var valid_position = true;
+                for (let j = 0; j < i; j++) {
+                    let distanceSquared = Math.pow(new_position[0] - this.sphere_positions[j][0], 2) +
+                                        Math.pow(new_position[1] - this.sphere_positions[j][1], 2) +
+                                        Math.pow(new_position[2] - this.sphere_positions[j][2], 2);
+                    let distance = Math.sqrt(distanceSquared);
+
+                    if (distance < 2) { //Change this to make spheres farther apart (higher number causes more lag)
+                        valid_position = false;
+                        break;
+                    }
+                }
+            } while (!valid_position);
+
+            this.sphere_positions.push(new_position);
         }
+
+
+
 
         this.camera = new FPSCam(0, 0, 20);
     }
@@ -121,29 +151,21 @@ export class PrecisionPlayground extends Scene {
 
         this.shapes.floor.draw(context, program_state, floor_transform, this.materials.test);
 
-        // Check if two seconds have passed
-        if (t % 1 < dt) {
-            // Update the sphere's position only every two seconds
-            let dx = (Math.random() - 0.5) * 20;
-            let dy = (Math.random() - 0.5) * 5+5;
-            let dz = (Math.random() - 0.5) * 0.01;
-            this.sphere_positions[0] = vec3(dx, dy, dz);
-
-            // Inserting Andrew's code p.2
-            let scale_factor = 1;
-            if (!this.randomize_sizing){ // Not used may be unnecessary
-                scale_factor = 0.1 + Math.random()*3; // Random scale between 0.5 and 1.5
-            }
-            //Update sphere position and size
-            this.sphere_positions[0] = vec3(dx, dy, dz);
-            this.sphere_scale = vec3(scale_factor, scale_factor, scale_factor); // May be unnecessary
+        // Inserting Andrew's code p.2
+        let scale_factor = 1;
+        if (!this.randomize_sizing) {
+            scale_factor = 0.1 + Math.random() * 3; // Random scale between 0.5 and 1.5
         }
-
-        let target_transform = model_transform.times(Mat4.translation(...this.sphere_positions[0], 1));
-
-
-        // console.log("Sphere Position:", this.sphere_positions[0]);
-        // console.log("Target Transform:", target_transform);
-        this.shapes.target.draw(context, program_state, target_transform, this.materials.blue_sphere);
+        // Update the scale factor for all spheres (assuming it's the same for all spheres)
+        let sphere_scale = vec3(scale_factor, scale_factor, scale_factor);
+        // Uncomment the line below if you want to use the same scale for all spheres
+        // this.sphere_scale = sphere_scale;
+        
+        
+        // Draw all ten spheres
+        for (let i = 0; i < 10; i++) {
+            let target_transform = model_transform.times(Mat4.translation(...this.sphere_positions[i], 1));
+            this.shapes.target.draw(context, program_state, target_transform, this.materials.blue_sphere);
+        }
     }
 }

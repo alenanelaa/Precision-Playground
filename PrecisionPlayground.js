@@ -139,10 +139,6 @@ export class PrecisionPlayground extends Scene {
                     }            
 
                 });
-                //this.shoot(mouse_position(e), program_state);
-            }, {once: true});
-            canvas.addEventListener("click", async (e) => {
-                //console.log("reached")
                 this.shoot(mouse_position(e), program_state);
             }, {once: true});
         }
@@ -202,7 +198,7 @@ export class PrecisionPlayground extends Scene {
                         // console.log(`DistanceZ to sphere ${i + 1}: ${distanceZ}`);
             
                         // Check if the position is within a certain distance (e.g., 2 units) from the sphere
-                        const distanceThreshold = 2;
+                        const distanceThreshold = 1;
                         if (Math.sqrt(distanceX ** 2 + distanceY ** 2 + distanceZ ** 2) < distanceThreshold) {
                             this.sphere_positions.splice(j, 1);
                             console.log(`Target ${j + 1} Hit`);

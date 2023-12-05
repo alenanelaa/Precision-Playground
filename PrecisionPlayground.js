@@ -13,8 +13,9 @@ export class PrecisionPlayground extends Scene {
 
         this.shapes = {
             floor: new Cube(),
-            target: new Subdivision_Sphere(4),
-            crosshair: new Square()
+            target: new defs.Subdivision_Sphere(4),
+            crosshair: new Square(),
+            skybox: new Cube(),
         };
 
         this.materials = {
@@ -30,7 +31,12 @@ export class PrecisionPlayground extends Scene {
                 color: hex_color("#000000"),
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/crosshair.png")
-            })
+            }),
+            skybox_material: new Material(new Phong_Shader(), {
+                color: hex_color("#87CEEB"), // Sky blue color
+                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                // texture: new Texture("assets/cracks.jpg"), //placeholder, doesn't work right now.
+            }),
         };
 
         this.paused = false; //for pause and play (may wanna change it to be game states)
@@ -109,13 +115,28 @@ export class PrecisionPlayground extends Scene {
 
         this.camera.interface(context, program_state, this.shapes, this.materials); //drawing crosshair and eventually score
 
+        // Inserting Andrew's code
+        let background_transform = model_transform.times(Mat4.scale(50, 50, 50));
+        this.shapes.skybox.draw(context, program_state, background_transform, this.materials.skybox_material);
+
+        this.shapes.floor.draw(context, program_state, floor_transform, this.materials.test);
+
         // Check if two seconds have passed
         if (t % 1 < dt) {
             // Update the sphere's position only every two seconds
-            let dx = (Math.random() - 0.5) * 10;
-            let dy = (Math.random() - 0.5) * 10;
-            let dz = (Math.random() - 0.5) * 10;
+            let dx = (Math.random() - 0.5) * 20;
+            let dy = (Math.random() - 0.5) * 5+5;
+            let dz = (Math.random() - 0.5) * 0.01;
             this.sphere_positions[0] = vec3(dx, dy, dz);
+
+            // Inserting Andrew's code p.2
+            let scale_factor = 1;
+            if (!this.randomize_sizing){ // Not used may be unnecessary
+                scale_factor = 0.1 + Math.random()*3; // Random scale between 0.5 and 1.5
+            }
+            //Update sphere position and size
+            this.sphere_positions[0] = vec3(dx, dy, dz);
+            this.sphere_scale = vec3(scale_factor, scale_factor, scale_factor); // May be unnecessary
         }
 
         let target_transform = model_transform.times(Mat4.translation(...this.sphere_positions[0], 1));

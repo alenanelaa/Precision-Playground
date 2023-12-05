@@ -16,11 +16,16 @@ export class PrecisionPlayground extends Scene {
             target: new defs.Subdivision_Sphere(4),
             crosshair: new Square(),
             skybox: new Cube(),
+            wall: new Cube(),
         };
 
         this.materials = {
             test: new Material(new Phong_Shader(), {
                 color: hex_color("#ffffff"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5
+            }),
+            test_2: new Material(new Phong_Shader(), {
+               color: hex_color("#808080"),
                 ambient: 1, diffusivity: 0.5, specularity: 0.5
             }),
             blue_sphere: new Material(new Phong_Shader(), {
@@ -140,8 +145,20 @@ export class PrecisionPlayground extends Scene {
         let t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
 
-        let floor_transform = model_transform.times(Mat4.translation(0, -5, 0)).times(Mat4.scale(20, 0.1, 20));
+        let floor_transform = model_transform.times(Mat4.translation(0, -5, 0)).times(Mat4.scale(40, 0.1, 30));
         this.shapes.floor.draw(context, program_state, floor_transform, this.materials.test);
+
+        let wall_transform1 = model_transform.times(Mat4.translation(0, -2, -30)).times(Mat4.scale(40, 3, 0.1));
+        this.shapes.wall.draw(context, program_state, wall_transform1, this.materials.test_2);
+
+        let wall_transform2 = model_transform.times(Mat4.translation(-40, 0, -10)).times(Mat4.scale(0.1, 15, 35));
+        this.shapes.wall.draw(context, program_state, wall_transform2, this.materials.test_2);
+
+        let wall_transform3 = model_transform.times(Mat4.translation(40, 0, -10)).times(Mat4.scale(0.1, 15, 35));
+        this.shapes.wall.draw(context, program_state, wall_transform3, this.materials.test_2);
+
+        let ceiling_transform = model_transform.times(Mat4.translation(0, 15, -30)).times(Mat4.scale(40, 0.1, 15))
+        this.shapes.wall.draw(context, program_state, ceiling_transform, this.materials.test_2);
 
         this.camera.interface(context, program_state, this.shapes, this.materials); //drawing crosshair and eventually score
 

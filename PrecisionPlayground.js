@@ -45,7 +45,11 @@ export class PrecisionPlayground extends Scene {
         };
         
         //New Variables (Unused)
-        this.curScore = 0;
+
+        this.gameStart = false;
+        this.gameOver = false;
+        this.timer = 0;
+        this.timerInterval = null;
         this.paused = false; //for pause and play (may wanna change it to be game states)
 
         this.controls = {
@@ -79,17 +83,61 @@ export class PrecisionPlayground extends Scene {
             } while (!valid_position);
 
             this.sphere_positions.push(new_position);
+
         }
 
-
+        this.animation_queue = []
 
 
         this.camera = new FPSCam(0, 0, 20);
     }
 
-    shoot(pos, program_state) {
-        pos = [0,0];
+    resetGame() {
+        // Reset game-related variables
+        this.gameStart = false;
+        this.gameOver = false;
+        this.timer = 0;
+        this.paused = false;
 
+        // Reset sphere positions
+        this.sphere_positions = [];
+        for (let i = 0; i < 10; i++) {
+            let new_position;
+            do {
+                new_position = vec3(
+                    (Math.random() - 0.5) * 20,
+                    (Math.random() - 0.5) * 9 + 2,
+                    (Math.random() - 0.5) * 0.01
+                );
+
+                // Check the distance from the new position to all previously generated positions
+                var valid_position = true;
+                for (let j = 0; j < i; j++) {
+                    let distanceSquared =
+                        Math.pow(new_position[0] - this.sphere_positions[j][0], 2) +
+                        Math.pow(new_position[1] - this.sphere_positions[j][1], 2) +
+                        Math.pow(new_position[2] - this.sphere_positions[j][2], 2);
+                    let distance = Math.sqrt(distanceSquared);
+
+                    if (distance < 2) {
+                        valid_position = false;
+                        break;
+                    }
+                }
+            } while (!valid_position);
+
+            this.sphere_positions.push(new_position);
+        }
+
+        // Clear animation queue
+        this.animation_queue = [];
+
+
+    }
+
+    shoot(pos, program_state) {
+        //pos = [0,0];
+        //console.log("Reached")
         let pos_ndc_near = vec4(pos[0], pos[1], -1.0, 1.0);
         let pos_ndc_far = vec4(pos[0], pos[1], 1.0, 1.0);
         let center_ndc_near = vec4(0.0, 0.0, -1.0, 1.0);
@@ -101,6 +149,31 @@ export class PrecisionPlayground extends Scene {
         pos_world_near.scale_by(1/pos_world_near[3]);
         pos_world_far.scale_by(1/pos_world_far[3]);
         center_world_near.scale_by(1/center_world_near[3]);
+
+        let animation_bullet = {
+            from: center_world_near,
+            to: pos_world_far,
+            start_time: program_state.animation_time,
+            end_time: program_state.animation_time + 1000,
+          };
+        
+        
+        this.animation_queue.push(animation_bullet);
+        //console.log(this.animation_queue);
+    }
+
+    startTimer() {
+        this.timer = 0;
+        this.timerInterval = window.setInterval(() => {
+            this.timer++;
+        }, 1000); // Increment timer every second (1000 milliseconds)
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            window.clearInterval(this.timerInterval);
+            console.log("Game Over - Timer:", this.timer, "seconds");
+        }
     }
 
     display(context, program_state) {
@@ -110,18 +183,21 @@ export class PrecisionPlayground extends Scene {
 
         if (!context.scratchpad.controls) {
             const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
-                vec(
-                    (e.clientX - (rect.left + rect.right)/2) /
-                        ((rect.right - rect.left)/2),
-                    (e.clientY - (rect.bottom + rect.top)/2) /
-                        ((rect.top - rect.bottom)/2)
-                );
-
+            vec(
+              (e.clientX - (rect.left + rect.right) / 2) /
+                ((rect.right - rect.left) / 2),
+              (e.clientY - (rect.bottom + rect.top) / 2) /
+                ((rect.top - rect.bottom) / 2)
+            );
+  
+            
             //PointerLock API
             canvas.addEventListener("mousedown", async (e) => {
                 e.preventDefault();
                 if (!document.pointerLockElement && !this.paused) {
                     await canvas.requestPointerLock();
+                    const initial_mouse_position = mouse_position(e);
+                    this.camera.update_cam(0, 0, this.controls.sens, initial_mouse_position);
                 }
                 canvas.addEventListener("mousemove", (e) => {
                     let del_x = e.movementX;
@@ -134,6 +210,7 @@ export class PrecisionPlayground extends Scene {
                 });
                 this.shoot(mouse_position(e), program_state);
             }, {once: true});
+            
         }
 
         program_state.projection_transform = Mat4.perspective(
@@ -167,22 +244,76 @@ export class PrecisionPlayground extends Scene {
         this.shapes.skybox.draw(context, program_state, background_transform, this.materials.skybox_material);
 
         this.shapes.floor.draw(context, program_state, floor_transform, this.materials.test);
-
-        // Inserting Andrew's code p.2
-        let scale_factor = 1;
-        if (!this.randomize_sizing) {
-            scale_factor = 0.1 + Math.random() * 3; // Random scale between 0.5 and 1.5
-        }
-        // Update the scale factor for all spheres (assuming it's the same for all spheres)
-        let sphere_scale = vec3(scale_factor, scale_factor, scale_factor);
-        // Uncomment the line below if you want to use the same scale for all spheres
-        // this.sphere_scale = sphere_scale;
-        
         
         // Draw all ten spheres
         for (let i = 0; i < 10; i++) {
-            let target_transform = model_transform.times(Mat4.translation(...this.sphere_positions[i], 1));
-            this.shapes.target.draw(context, program_state, target_transform, this.materials.blue_sphere);
+            if (this.sphere_positions[i]) { // Check if this.sphere_positions[i] is defined
+                let target_transform = model_transform.times(Mat4.translation(...this.sphere_positions[i], 1));
+                this.shapes.target.draw(context, program_state, target_transform, this.materials.blue_sphere);
+            }
         }
+
+        t = program_state.animation_time;
+        if (this.animation_queue.length > 0) {
+            for (let i = 0; i < this.animation_queue.length; i++) {
+                let animation_bullet = this.animation_queue[i];
+                let from = animation_bullet.from;
+                let to = animation_bullet.to;
+                let start_time = animation_bullet.start_time;
+                let end_time = animation_bullet.end_time;
+                if (t <= end_time && t >= start_time) {
+                    //console.log("reached")
+                    let animation_process = (t - start_time) / (end_time - start_time);
+                    let position = to.times(animation_process).plus(from.times(1 - animation_process));
+            
+                    for (let j = 0; j < this.sphere_positions.length; j++) {
+                        let sphere_position = this.sphere_positions[j];
+            
+                        // Calculate distance of cube to ray
+                        let distanceX = Math.abs(sphere_position[0] - position[0]);
+                        let distanceY = Math.abs(sphere_position[1] - position[1]);
+                        let distanceZ = Math.abs(sphere_position[2] - position[2]);
+            
+                        // Print or use the distances as needed
+                        // console.log(`DistanceX to sphere ${i + 1}: ${distanceX}`);
+                        // console.log(`DistanceY to sphere ${i + 1}: ${distanceY}`);
+                        // console.log(`DistanceZ to sphere ${i + 1}: ${distanceZ}`);
+            
+                        // Check if the position is within a certain distance (e.g., 2 units) from the sphere
+                        const distanceThreshold = 1;
+                        if (Math.sqrt(distanceX ** 2 + distanceY ** 2 + distanceZ ** 2) < distanceThreshold) {
+                            this.sphere_positions.splice(j, 1);
+                            console.log(`Target ${j + 1} Hit`);
+                            this.animation_queue.length = 0;
+                        }
+                    }
+            }
+            }
+        }
+        for (let i = 0; i < 10; i++) { //After checking for hits, print the new list
+            if (this.sphere_positions[i]) { // Check if this.sphere_positions[i] is defined
+                let target_transform = model_transform.times(Mat4.translation(...this.sphere_positions[i], 1));
+                this.shapes.target.draw(context, program_state, target_transform, this.materials.blue_sphere);
+            }
+        }
+        if (this.sphere_positions.length === 9 && !this.gameStart) {
+            this.gameStart = true;
+            this.startTimer();
+        }
+
+        if (this.sphere_positions.length === 0 && !this.gameOver) {
+            this.gameOver = true;
+            this.stopTimer();
+            this.resetGame();
+        }
+        while (this.animation_queue.length > 0) {
+            if (t > this.animation_queue[0].end_time) {
+              this.animation_queue.length = 0;
+            } else {
+              break;
+            }
+          }
+
     }
-}
+    }
+

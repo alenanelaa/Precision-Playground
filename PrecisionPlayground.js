@@ -63,7 +63,7 @@ export class PrecisionPlayground extends Scene {
             do {
                 new_position = vec3(
                     (Math.random() - 0.5) * 20,
-                    (Math.random() - 0.5) * 9+2,
+                    (Math.random() - 0.5) * 9+1,
                     (Math.random() - 0.5) * 0.01
                 );
 
@@ -106,7 +106,7 @@ export class PrecisionPlayground extends Scene {
             do {
                 new_position = vec3(
                     (Math.random() - 0.5) * 20,
-                    (Math.random() - 0.5) * 9 + 2,
+                    (Math.random() - 0.5) * 9 + 1,
                     (Math.random() - 0.5) * 0.01
                 );
 

@@ -1,6 +1,6 @@
 import FPSCam from './camera-view.js';
 import { defs, tiny } from './examples/common.js';
-
+import { Text_Line } from "./examples/text-demo.js";
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
 } = tiny;
@@ -17,9 +17,15 @@ export class PrecisionPlayground extends Scene {
             crosshair: new Square(),
             skybox: new Cube(),
             wall: new Cube(),
+            text: new Text_Line(35)
         };
 
         this.materials = {
+            timer_text: new Material(new defs.Textured_Phong(1), {
+                ambient: 0.5,
+                texture: new Texture("assets/text.png"),
+                color: hex_color("#FF0000"),
+            }),
             test: new Material(new Phong_Shader(), {
                 color: hex_color("#ffffff"),
                 ambient: 1, diffusivity: 0.5, specularity: 0.5
@@ -306,6 +312,29 @@ export class PrecisionPlayground extends Scene {
             this.stopTimer();
             this.resetGame();
         }
+        let score_header = "Time:";
+        let score_color = hex_color("#00FF00");
+        let score_header_transform = Mat4.identity()
+            .times(Mat4.translation(-10, 1+5, 0))
+            .times(Mat4.scale(0.5, 0.5, 0.5));
+        this.shapes.text.set_string(score_header, context.context);
+        this.shapes.text.draw(
+            context,
+            program_state,
+            score_header_transform,
+            this.materials.timer_text.override({ color: score_color })
+        );
+        let score_actual = " " + this.timer;
+        let score_actual_transform = score_header_transform.times(
+            Mat4.translation(0, -2, 0)
+        );
+        this.shapes.text.set_string(score_actual, context.context);
+        this.shapes.text.draw(
+            context,
+            program_state,
+            score_actual_transform,
+            this.materials.timer_text.override({ color: score_color })
+        );
         while (this.animation_queue.length > 0) {
             if (t > this.animation_queue[0].end_time) {
               this.animation_queue.length = 0;

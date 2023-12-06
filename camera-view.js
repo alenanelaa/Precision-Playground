@@ -33,5 +33,6 @@ export default class FPSCam {
         // crosshair
         let ch_transform = cam_matrix.times(Mat4.translation(0, 0, -1)).times(Mat4.scale(0.02, 0.02, 0.02));
         shapes.crosshair.draw(context, program_state, ch_transform, materials.crosshair);
+
     }
 }

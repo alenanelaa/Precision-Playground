@@ -19,13 +19,20 @@ export class PrecisionPlayground extends Scene {
             wall: new Cube(),
         };
 
+        this.shapes.floor.arrays.texture_coord = this.shapes.floor.arrays.texture_coord.map(x => x.times(2));
+
         this.materials = {
-            test: new Material(new Phong_Shader(), {
+            floor: new Material(new Textured_Phong(), {
                 color: hex_color("#ffffff"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                texture: new Texture("assets/tile.png")
+            }),
+            wall_1: new Material(new Phong_Shader(), {
+               color: hex_color("#808080"),
                 ambient: 1, diffusivity: 0.5, specularity: 0.5
             }),
-            test_2: new Material(new Phong_Shader(), {
-               color: hex_color("#808080"),
+            wall_2: new Material(new Phong_Shader(), {
+                color: hex_color("#454545"),
                 ambient: 1, diffusivity: 0.5, specularity: 0.5
             }),
             blue_sphere: new Material(new Phong_Shader(), {
@@ -37,10 +44,10 @@ export class PrecisionPlayground extends Scene {
                 ambient: 1, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/crosshair.png")
             }),
-            skybox_material: new Material(new Phong_Shader(), { 
+            skybox_material: new Material(new Textured_Phong(), {
                 color: hex_color("#87CEEB"), // Sky blue color
                 ambient: 1, diffusivity: 0.5, specularity: 0.5,
-                // texture: new Texture("assets/cracks.jpg"), //placeholder, change in the future
+                // texture: new Texture("assets/tile.png"), //placeholder, change in the future
             }),
         };
         
@@ -222,20 +229,29 @@ export class PrecisionPlayground extends Scene {
         let t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
 
+        // Floor
         let floor_transform = model_transform.times(Mat4.translation(0, -5, 0)).times(Mat4.scale(40, 0.1, 30));
-        this.shapes.floor.draw(context, program_state, floor_transform, this.materials.test);
+        this.shapes.floor.draw(context, program_state, floor_transform, this.materials.floor);
 
+        // Shorter back Wall
         let wall_transform1 = model_transform.times(Mat4.translation(0, -2, -30)).times(Mat4.scale(40, 3, 0.1));
-        this.shapes.wall.draw(context, program_state, wall_transform1, this.materials.test_2);
+        this.shapes.wall.draw(context, program_state, wall_transform1, this.materials.wall_2);
 
+        // Left Wall
         let wall_transform2 = model_transform.times(Mat4.translation(-40, 0, -10)).times(Mat4.scale(0.1, 15, 35));
-        this.shapes.wall.draw(context, program_state, wall_transform2, this.materials.test_2);
+        this.shapes.wall.draw(context, program_state, wall_transform2, this.materials.wall_1);
 
+        // Right Wall
         let wall_transform3 = model_transform.times(Mat4.translation(40, 0, -10)).times(Mat4.scale(0.1, 15, 35));
-        this.shapes.wall.draw(context, program_state, wall_transform3, this.materials.test_2);
+        this.shapes.wall.draw(context, program_state, wall_transform3, this.materials.wall_1);
 
+        // Furthest back wall
+        let wall_transform4 = model_transform.times(Mat4.translation(0, 0, -40)).times(Mat4.scale(40, 15, 0.1));
+        this.shapes.wall.draw(context, program_state, wall_transform4, this.materials.wall_1);
+
+        // Ceiling
         let ceiling_transform = model_transform.times(Mat4.translation(0, 15, -30)).times(Mat4.scale(40, 0.1, 15))
-        this.shapes.wall.draw(context, program_state, ceiling_transform, this.materials.test_2);
+        this.shapes.wall.draw(context, program_state, ceiling_transform, this.materials.wall_1);
 
         this.camera.interface(context, program_state, this.shapes, this.materials); //drawing crosshair and eventually score
 
@@ -243,7 +259,7 @@ export class PrecisionPlayground extends Scene {
         let background_transform = model_transform.times(Mat4.scale(50, 50, 50));
         this.shapes.skybox.draw(context, program_state, background_transform, this.materials.skybox_material);
 
-        this.shapes.floor.draw(context, program_state, floor_transform, this.materials.test);
+        this.shapes.floor.draw(context, program_state, floor_transform, this.materials.floor);
         
         // Draw all ten spheres
         for (let i = 0; i < 10; i++) {

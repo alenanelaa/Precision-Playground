@@ -38,9 +38,9 @@ export class PrecisionPlayground extends Scene {
                 texture: new Texture("assets/crosshair.png")
             }),
             skybox_material: new Material(new Textured_Phong(), {
-                color: hex_color("#87CEEB"), // Sky blue color
+                color: hex_color("#000000"), // Sky blue color
                 ambient: 1, diffusivity: 0.5, specularity: 0.5,
-                texture: new Texture("assets/cracks.png")
+                texture: new Texture("assets/sky.png")
             }),
         };
         

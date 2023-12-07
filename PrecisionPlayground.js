@@ -60,7 +60,7 @@ export class PrecisionPlayground extends Scene {
             skybox_material: new Material(new Textured_Phong(), {
                 color: hex_color("#000000"),
                 ambient: 1, diffusivity: 0.5, specularity: 0.5,
-                texture: new Texture("assets/sky.png")
+                texture: new Texture("assets/nightsky.png")
             }),
         };
         

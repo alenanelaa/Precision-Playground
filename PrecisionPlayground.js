@@ -253,16 +253,20 @@ export class PrecisionPlayground extends Scene {
         this.shapes.wall.draw(context, program_state, wall_transform1, this.materials.wall_2);
 
         // Left Wall
-        let wall_transform2 = model_transform.times(Mat4.translation(-40, 0, -10)).times(Mat4.scale(0.1, 15, 35));
+        let wall_transform2 = model_transform.times(Mat4.translation(-40, 0, -10)).times(Mat4.scale(0.1, 15, 40));
         this.shapes.wall.draw(context, program_state, wall_transform2, this.materials.wall_1);
 
         // Right Wall
-        let wall_transform3 = model_transform.times(Mat4.translation(40, 0, -10)).times(Mat4.scale(0.1, 15, 35));
+        let wall_transform3 = model_transform.times(Mat4.translation(40, 0, -10)).times(Mat4.scale(0.1, 15, 40));
         this.shapes.wall.draw(context, program_state, wall_transform3, this.materials.wall_1);
 
         // Furthest back wall
         let wall_transform4 = model_transform.times(Mat4.translation(0, 0, -40)).times(Mat4.scale(40, 15, 0.1));
         this.shapes.wall.draw(context, program_state, wall_transform4, this.materials.wall_1);
+
+        // Wall behind camera
+        let wall_transform5 = model_transform.times(Mat4.translation(0, 0, 30)).times(Mat4.scale(40, 15, 0.1));
+        this.shapes.wall.draw(context, program_state, wall_transform5, this.materials.wall_1);
 
         // Ceiling
         let ceiling_transform = model_transform.times(Mat4.translation(0, 15, -30)).times(Mat4.scale(40, 0.1, 15))

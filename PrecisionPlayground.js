@@ -66,23 +66,23 @@ export class PrecisionPlayground extends Scene {
         this.sphere_positions = [];
         for (let i = 0; i < 10; i++) {
             let new_position;
-
             do {
                 new_position = vec3(
-                    (Math.random() - 0.5) * 14,
-                    (Math.random() - 0.5) * 9+1,
-                    (Math.random() - 0.5) * 0.01
+                    (Math.random() - 0.5) * 20,
+                    (Math.random() - 0.5) * 10 + 2,
+                    (Math.random() - 0.5) * 0.01-10
                 );
 
                 // Check the distance from the new position to all previously generated positions
                 var valid_position = true;
                 for (let j = 0; j < i; j++) {
-                    let distanceSquared = Math.pow(new_position[0] - this.sphere_positions[j][0], 2) +
-                                        Math.pow(new_position[1] - this.sphere_positions[j][1], 2) +
-                                        Math.pow(new_position[2] - this.sphere_positions[j][2], 2);
+                    let distanceSquared =
+                        Math.pow(new_position[0] - this.sphere_positions[j][0], 2) +
+                        Math.pow(new_position[1] - this.sphere_positions[j][1], 2) +
+                        Math.pow(new_position[2] - this.sphere_positions[j][2], 2);
                     let distance = Math.sqrt(distanceSquared);
 
-                    if (distance < 2) { //Change this to make spheres farther apart (higher number causes more lag)
+                    if (distance < 3) {
                         valid_position = false;
                         break;
                     }
@@ -113,9 +113,9 @@ export class PrecisionPlayground extends Scene {
             let new_position;
             do {
                 new_position = vec3(
-                    (Math.random() - 0.5) * 14,
-                    (Math.random() - 0.5) * 9 + 1,
-                    (Math.random() - 0.5) * 0.01
+                    (Math.random() - 0.5) * 20,
+                    (Math.random() - 0.5) * 10 + 2,
+                    (Math.random() - 0.5) * 0.01-10
                 );
 
                 // Check the distance from the new position to all previously generated positions
@@ -127,7 +127,7 @@ export class PrecisionPlayground extends Scene {
                         Math.pow(new_position[2] - this.sphere_positions[j][2], 2);
                     let distance = Math.sqrt(distanceSquared);
 
-                    if (distance < 2) {
+                    if (distance < 3) {
                         valid_position = false;
                         break;
                     }
@@ -317,7 +317,7 @@ export class PrecisionPlayground extends Scene {
         let score_header = "Time:";
         let score_color = hex_color("#EE4B2B");
         let score_header_transform = Mat4.identity()
-            .times(Mat4.translation(-15, 1+5, -5))
+            .times(Mat4.translation(-15, 1+5, -15))
             .times(Mat4.scale(0.5, 0.5, 0.5));
         this.shapes.text.set_string(score_header, context.context);
         this.shapes.text.draw(
@@ -340,7 +340,7 @@ export class PrecisionPlayground extends Scene {
         let prev_score_header = "Previous Time:";
         let prev_score_color = hex_color("#EE4B2B");
         let prev_score_header_transform = Mat4.identity()
-            .times(Mat4.translation(-15, 1+2, -5))
+            .times(Mat4.translation(-15, 1+2, -15))
             .times(Mat4.scale(0.5, 0.5, 0.5));
         this.shapes.text.set_string(prev_score_header, context.context);
         this.shapes.text.draw(

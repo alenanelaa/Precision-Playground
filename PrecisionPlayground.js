@@ -19,19 +19,22 @@ export class PrecisionPlayground extends Scene {
             wall: new Cube(),
         };
 
-        this.shapes.floor.arrays.texture_coord = this.shapes.floor.arrays.texture_coord.map(x => x.times(2));
+        // Multiply tile on floor
+        this.shapes.floor.arrays.texture_coord = this.shapes.floor.arrays.texture_coord.map(x => x.times(12));
+        this.shapes.wall.arrays.texture_coord = this.shapes.wall.arrays.texture_coord.map(x => x.times(12));
 
         this.materials = {
             floor: new Material(new Textured_Phong(), {
-                color: hex_color("#ffffff"),
+                color: hex_color("#000000"),
                 ambient: 1, diffusivity: 0.5, specularity: 0.5,
-                texture: new Texture("assets/tile.png")
+                texture: new Texture("assets/tile.jpg")
             }),
-            wall_1: new Material(new Phong_Shader(), {
-               color: hex_color("#808080"),
-                ambient: 1, diffusivity: 0.5, specularity: 0.5
+            wall_1: new Material(new Textured_Phong(), { // Normal Walls
+               color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                texture: new Texture("assets/wall.jpg")
             }),
-            wall_2: new Material(new Phong_Shader(), {
+            wall_2: new Material(new Phong_Shader(), { // Short Front Wall
                 color: hex_color("#454545"),
                 ambient: 1, diffusivity: 0.5, specularity: 0.5
             }),
@@ -45,7 +48,7 @@ export class PrecisionPlayground extends Scene {
                 texture: new Texture("assets/crosshair.png")
             }),
             skybox_material: new Material(new Textured_Phong(), {
-                color: hex_color("#000000"), // Sky blue color
+                color: hex_color("#000000"),
                 ambient: 1, diffusivity: 0.5, specularity: 0.5,
                 texture: new Texture("assets/sky.png")
             }),
@@ -251,7 +254,7 @@ export class PrecisionPlayground extends Scene {
 
         // Ceiling
         let ceiling_transform = model_transform.times(Mat4.translation(0, 15, -30)).times(Mat4.scale(40, 0.1, 15))
-        this.shapes.wall.draw(context, program_state, ceiling_transform, this.materials.wall_1);
+        this.shapes.wall.draw(context, program_state, ceiling_transform, this.materials.wall_2);
 
         this.camera.interface(context, program_state, this.shapes, this.materials); //drawing crosshair and eventually score
 

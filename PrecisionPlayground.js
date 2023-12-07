@@ -470,6 +470,19 @@ export class PrecisionPlayground extends Scene {
             high_score_actual_transform,
             this.materials.timer_text.override({ color: high_score_color })
         );
+        let start_instruction = "Begin by clicking the crosshair";
+        let start_instruction_color = hex_color("#00FF00"); // Choose your own color
+        let start_instruction_transform = Mat4.identity()
+            .times(Mat4.translation(-12, 11, -12)) // Adjusted Y-position
+            .times(Mat4.scale(0.5, 0.5, 0.5));
+        this.shapes.text.set_string(start_instruction, context.context);
+        this.shapes.text.draw(
+            context,
+            program_state,
+            start_instruction_transform,
+            this.materials.timer_text.override({ color: start_instruction_color })
+        );
+        
         while (this.animation_queue.length > 0) {
             if (t > this.animation_queue[0].end_time) {
               this.animation_queue.length = 0;

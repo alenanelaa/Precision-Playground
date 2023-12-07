@@ -317,7 +317,7 @@ export class PrecisionPlayground extends Scene {
         let score_header = "Time:";
         let score_color = hex_color("#EE4B2B");
         let score_header_transform = Mat4.identity()
-            .times(Mat4.translation(-15, 1+5, -15))
+            .times(Mat4.translation(-20, 1+5, -15))
             .times(Mat4.scale(0.5, 0.5, 0.5));
         this.shapes.text.set_string(score_header, context.context);
         this.shapes.text.draw(
@@ -340,7 +340,7 @@ export class PrecisionPlayground extends Scene {
         let prev_score_header = "Previous Time:";
         let prev_score_color = hex_color("#EE4B2B");
         let prev_score_header_transform = Mat4.identity()
-            .times(Mat4.translation(-15, 1+2, -15))
+            .times(Mat4.translation(-20, 1+2, -15))
             .times(Mat4.scale(0.5, 0.5, 0.5));
         this.shapes.text.set_string(prev_score_header, context.context);
         this.shapes.text.draw(

@@ -1,6 +1,6 @@
 import FPSCam from './camera-view.js';
 import { defs, tiny } from './examples/common.js';
-
+import { Text_Line } from "./examples/text-demo.js";
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
 } = tiny;
@@ -17,6 +17,7 @@ export class PrecisionPlayground extends Scene {
             crosshair: new Square(),
             skybox: new Cube(),
             wall: new Cube(),
+            text: new Text_Line(35)
         };
 
         // Multiply tile on floor
@@ -25,9 +26,18 @@ export class PrecisionPlayground extends Scene {
 
         this.materials = {
             floor: new Material(new Textured_Phong(), {
-                color: hex_color("#000000"),
-                ambient: 1, diffusivity: 0.5, specularity: 0.5,
-                texture: new Texture("assets/tile.jpg")
+            color: hex_color("#000000"),
+            ambient: 1, diffusivity: 0.5, specularity: 0.5,
+            texture: new Texture("assets/tile.jpg")
+        }),
+            timer_text: new Material(new defs.Textured_Phong(1), {
+                ambient: 0.5,
+                texture: new Texture("assets/text.png"),
+                color: hex_color("#FF0000"),
+            }),
+            test: new Material(new Phong_Shader(), {
+                color: hex_color("#ffffff"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5
             }),
             wall_1: new Material(new Textured_Phong(), { // Normal Walls
                color: hex_color("#000000"),
@@ -58,6 +68,7 @@ export class PrecisionPlayground extends Scene {
 
         this.gameStart = false;
         this.gameOver = false;
+        this.previousTime = 0;
         this.timer = 0;
         this.timerInterval = null;
         this.paused = false; //for pause and play (may wanna change it to be game states)
@@ -69,23 +80,23 @@ export class PrecisionPlayground extends Scene {
         this.sphere_positions = [];
         for (let i = 0; i < 10; i++) {
             let new_position;
-
             do {
                 new_position = vec3(
                     (Math.random() - 0.5) * 20,
-                    (Math.random() - 0.5) * 9+2,
-                    (Math.random() - 0.5) * 0.01
+                    (Math.random() - 0.5) * 10 + 2,
+                    (Math.random() - 0.5) * 0.01-10
                 );
 
                 // Check the distance from the new position to all previously generated positions
                 var valid_position = true;
                 for (let j = 0; j < i; j++) {
-                    let distanceSquared = Math.pow(new_position[0] - this.sphere_positions[j][0], 2) +
-                                        Math.pow(new_position[1] - this.sphere_positions[j][1], 2) +
-                                        Math.pow(new_position[2] - this.sphere_positions[j][2], 2);
+                    let distanceSquared =
+                        Math.pow(new_position[0] - this.sphere_positions[j][0], 2) +
+                        Math.pow(new_position[1] - this.sphere_positions[j][1], 2) +
+                        Math.pow(new_position[2] - this.sphere_positions[j][2], 2);
                     let distance = Math.sqrt(distanceSquared);
 
-                    if (distance < 2) { //Change this to make spheres farther apart (higher number causes more lag)
+                    if (distance < 3) {
                         valid_position = false;
                         break;
                     }
@@ -106,6 +117,7 @@ export class PrecisionPlayground extends Scene {
         // Reset game-related variables
         this.gameStart = false;
         this.gameOver = false;
+        this.previousTime = this.timer;
         this.timer = 0;
         this.paused = false;
 
@@ -116,8 +128,8 @@ export class PrecisionPlayground extends Scene {
             do {
                 new_position = vec3(
                     (Math.random() - 0.5) * 20,
-                    (Math.random() - 0.5) * 9 + 2,
-                    (Math.random() - 0.5) * 0.01
+                    (Math.random() - 0.5) * 10 + 2,
+                    (Math.random() - 0.5) * 0.01-10
                 );
 
                 // Check the distance from the new position to all previously generated positions
@@ -129,7 +141,7 @@ export class PrecisionPlayground extends Scene {
                         Math.pow(new_position[2] - this.sphere_positions[j][2], 2);
                     let distance = Math.sqrt(distanceSquared);
 
-                    if (distance < 2) {
+                    if (distance < 3) {
                         valid_position = false;
                         break;
                     }
@@ -325,6 +337,52 @@ export class PrecisionPlayground extends Scene {
             this.stopTimer();
             this.resetGame();
         }
+        let score_header = "Time:";
+        let score_color = hex_color("#EE4B2B");
+        let score_header_transform = Mat4.identity()
+            .times(Mat4.translation(-20, 1+5, -15))
+            .times(Mat4.scale(0.5, 0.5, 0.5));
+        this.shapes.text.set_string(score_header, context.context);
+        this.shapes.text.draw(
+            context,
+            program_state,
+            score_header_transform,
+            this.materials.timer_text.override({ color: score_color })
+        );
+        let score_actual = " " + this.timer;
+        let score_actual_transform = score_header_transform.times(
+            Mat4.translation(0, -2, -5)
+        );
+        this.shapes.text.set_string(score_actual, context.context);
+        this.shapes.text.draw(
+            context,
+            program_state,
+            score_actual_transform,
+            this.materials.timer_text.override({ color: score_color })
+        );
+        let prev_score_header = "Previous Time:";
+        let prev_score_color = hex_color("#EE4B2B");
+        let prev_score_header_transform = Mat4.identity()
+            .times(Mat4.translation(-20, 1+2, -15))
+            .times(Mat4.scale(0.5, 0.5, 0.5));
+        this.shapes.text.set_string(prev_score_header, context.context);
+        this.shapes.text.draw(
+            context,
+            program_state,
+            prev_score_header_transform,
+            this.materials.timer_text.override({ color: score_color })
+        );
+        let prev_score_actual = " " + this.previousTime;
+        let prev_score_actual_transform = prev_score_header_transform.times(
+            Mat4.translation(0, -2, -5)
+        );
+        this.shapes.text.set_string(prev_score_actual, context.context);
+        this.shapes.text.draw(
+            context,
+            program_state,
+            prev_score_actual_transform,
+            this.materials.timer_text.override({ color: score_color })
+        );
         while (this.animation_queue.length > 0) {
             if (t > this.animation_queue[0].end_time) {
               this.animation_queue.length = 0;

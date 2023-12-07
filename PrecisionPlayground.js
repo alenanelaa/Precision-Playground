@@ -16,13 +16,23 @@ export class PrecisionPlayground extends Scene {
             target: new defs.Subdivision_Sphere(4),
             crosshair: new Square(),
             skybox: new Cube(),
-            wall: new Cube(),
+            wall1: new Cube(),
+            wall2: new Cube(), // Shorter wall
+            ceiling: new Cube(),
+            tire: new defs.Torus(15, 15),
+            crate: new Cube(),
             text: new Text_Line(35)
         };
 
         // Multiply tile on floor
         this.shapes.floor.arrays.texture_coord = this.shapes.floor.arrays.texture_coord.map(x => x.times(12));
-        this.shapes.wall.arrays.texture_coord = this.shapes.wall.arrays.texture_coord.map(x => x.times(12));
+
+        // Wall texture
+        this.shapes.wall1.arrays.texture_coord = this.shapes.wall1.arrays.texture_coord.map(x => x.times(12));
+        this.shapes.wall2.arrays.texture_coord = this.shapes.wall2.arrays.texture_coord.map(x => x.times(3));
+
+        // Skybox texture
+        this.shapes.skybox.arrays.texture_coord = this.shapes.skybox.arrays.texture_coord.map(x => x.times(2));
 
         this.materials = {
             floor: new Material(new Textured_Phong(), {
@@ -44,9 +54,24 @@ export class PrecisionPlayground extends Scene {
                 ambient: 1, diffusivity: 0.5, specularity: 0.5,
                 texture: new Texture("assets/wall.jpg")
             }),
-            wall_2: new Material(new Phong_Shader(), { // Short Front Wall
-                color: hex_color("#454545"),
-                ambient: 1, diffusivity: 0.5, specularity: 0.5
+            wall_2: new Material(new Textured_Phong(), { // Short Front Wall
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                texture: new Texture("assets/shortwall.jpg")
+            }),
+            ceiling: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                texture: new Texture("assets/ceiling1.jpg")
+            }),
+            tire: new Material(new Phong_Shader(), {
+                color: hex_color("#040309"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.4
+            }),
+            crate: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                texture: new Texture("assets/crate.png")
             }),
             blue_sphere: new Material(new Phong_Shader(), {
                 color: hex_color("#0000ff"),
@@ -259,32 +284,49 @@ export class PrecisionPlayground extends Scene {
         this.shapes.floor.draw(context, program_state, floor_transform, this.materials.floor);
 
         // Shorter back Wall
-        let wall_transform1 = model_transform.times(Mat4.translation(0, -2, -30)).times(Mat4.scale(40, 3, 0.1));
-        this.shapes.wall.draw(context, program_state, wall_transform1, this.materials.wall_2);
+        let wall_transform1 = model_transform.times(Mat4.translation(0, -2, -27)).times(Mat4.scale(40, 3, 0.1));
+        this.shapes.wall2.draw(context, program_state, wall_transform1, this.materials.wall_2);
 
         // Left Wall
         let wall_transform2 = model_transform.times(Mat4.translation(-40, 0, -10)).times(Mat4.scale(0.1, 15, 40));
-        this.shapes.wall.draw(context, program_state, wall_transform2, this.materials.wall_1);
+        this.shapes.wall1.draw(context, program_state, wall_transform2, this.materials.wall_1);
 
         // Right Wall
         let wall_transform3 = model_transform.times(Mat4.translation(40, 0, -10)).times(Mat4.scale(0.1, 15, 40));
-        this.shapes.wall.draw(context, program_state, wall_transform3, this.materials.wall_1);
+        this.shapes.wall1.draw(context, program_state, wall_transform3, this.materials.wall_1);
 
         // Furthest back wall
         let wall_transform4 = model_transform.times(Mat4.translation(0, 0, -40)).times(Mat4.scale(40, 15, 0.1));
-        this.shapes.wall.draw(context, program_state, wall_transform4, this.materials.wall_1);
+        this.shapes.wall1.draw(context, program_state, wall_transform4, this.materials.wall_1);
 
         // Wall behind camera
         let wall_transform5 = model_transform.times(Mat4.translation(0, 0, 30)).times(Mat4.scale(40, 15, 0.1));
-        this.shapes.wall.draw(context, program_state, wall_transform5, this.materials.wall_1);
+        this.shapes.wall1.draw(context, program_state, wall_transform5, this.materials.wall_1);
 
         // Ceiling
-        let ceiling_transform = model_transform.times(Mat4.translation(0, 15, -30)).times(Mat4.scale(40, 0.1, 15))
-        this.shapes.wall.draw(context, program_state, ceiling_transform, this.materials.wall_2);
+        let ceiling_transform = model_transform.times(Mat4.translation(0, 15, -30)).times(Mat4.scale(40, 0.1, 14))
+        this.shapes.ceiling.draw(context, program_state, ceiling_transform, this.materials.ceiling);
+
+        // Tires
+        let tire_transform1 = model_transform.times(Mat4.translation(-20, -4, -20)).times(Mat4.scale(2, 2, 1)).times(Mat4.rotation(80, 1, 0, 0))
+        this.shapes.tire.draw(context, program_state, tire_transform1, this.materials.tire);
+
+        let tire_transform2 = model_transform.times(Mat4.translation(-22, -3, -19)).times(Mat4.scale(2, 2, 1)).times(Mat4.rotation(80, 1, 0, 0)).times(Mat4.rotation(-10, 0, 1, 0))
+        this.shapes.tire.draw(context, program_state, tire_transform2, this.materials.tire);
+
+        let tire_transform3 = model_transform.times(Mat4.translation(-20, -2, -20)).times(Mat4.scale(2, 2, 1)).times(Mat4.rotation(80, 1, 0, 0)).times(Mat4.rotation(10, 0, 1, 0))
+        this.shapes.tire.draw(context, program_state, tire_transform3, this.materials.tire);
+
+        // Crates
+        let crate_transform1 = model_transform.times(Mat4.translation(26, -2.5, -24)).times(Mat4.scale(2.5, 2.5, 2.5))
+        this.shapes.crate.draw(context, program_state, crate_transform1, this.materials.crate);
+
+        let crate_transform2 = model_transform.times(Mat4.translation(21.75, -3.25, -24)).times(Mat4.scale(1.75, 1.75, 1.75))
+        this.shapes.crate.draw(context, program_state, crate_transform2, this.materials.crate);
 
         this.camera.interface(context, program_state, this.shapes, this.materials); //drawing crosshair and eventually score
 
-        // Inserting Andrew's code
+        // Skybox
         let background_transform = model_transform.times(Mat4.scale(50, 50, 50));
         this.shapes.skybox.draw(context, program_state, background_transform, this.materials.skybox_material);
 

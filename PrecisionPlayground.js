@@ -89,8 +89,8 @@ export class PrecisionPlayground extends Scene {
             }),
         };
         
-        //New Variables (Unused)
-
+        //New Variables 
+        this.highScore = Infinity;
         this.gameStart = false;
         this.gameOver = false;
         this.previousTime = 0;
@@ -109,7 +109,7 @@ export class PrecisionPlayground extends Scene {
                 new_position = vec3(
                     (Math.random() - 0.5) * 18,
                     (Math.random() - 0.5) * 10 + 2,
-                    (Math.random() - 0.5) * 0.01-10
+                    (Math.random() - 0.5) * 0.01-5
                 );
 
                 // Check the distance from the new position to all previously generated positions
@@ -133,13 +133,16 @@ export class PrecisionPlayground extends Scene {
         }
 
         this.animation_queue = []
-
+        this.start_time = performance.now();
 
         this.camera = new FPSCam(0, 0, 20);
     }
 
     resetGame() {
-        // Reset game-related variables
+        if (this.timer < this.highScore) {
+            this.highScore = this.timer;
+        }
+
         this.gameStart = false;
         this.gameOver = false;
         this.previousTime = this.timer;
@@ -154,7 +157,7 @@ export class PrecisionPlayground extends Scene {
                 new_position = vec3(
                     (Math.random() - 0.5) * 18,
                     (Math.random() - 0.5) * 10 + 2,
-                    (Math.random() - 0.5) * 0.01-10
+                    (Math.random() - 0.5) * 0.01-5
                 );
 
                 // Check the distance from the new position to all previously generated positions
@@ -209,17 +212,21 @@ export class PrecisionPlayground extends Scene {
         //console.log(this.animation_queue);
     }
 
+
+
+    // Inside the startTimer() function
     startTimer() {
         this.timer = 0;
+        this.start_time = performance.now(); // Update the start time with performance.now()
         this.timerInterval = window.setInterval(() => {
-            this.timer++;
-        }, 1000); // Increment timer every second (1000 milliseconds)
+            this.timer = (performance.now() - this.start_time) / 1000; // Calculate elapsed time in seconds
+        }, 16); // Using 16 milliseconds for smoother updates
     }
 
     stopTimer() {
         if (this.timerInterval) {
             window.clearInterval(this.timerInterval);
-            console.log("Game Over - Timer:", this.timer, "seconds");
+            console.log("Game Over - Timer:", this.timer.toFixed(3), "seconds");
         }
     }
 
@@ -394,7 +401,7 @@ export class PrecisionPlayground extends Scene {
             this.resetGame();
         }
         let score_header = "Time:";
-        let score_color = hex_color("#EE4B2B");
+        let score_color = hex_color("#00FF00");
         let score_header_transform = Mat4.identity()
             .times(Mat4.translation(-20, 1+5, -15))
             .times(Mat4.scale(0.5, 0.5, 0.5));
@@ -405,7 +412,7 @@ export class PrecisionPlayground extends Scene {
             score_header_transform,
             this.materials.timer_text.override({ color: score_color })
         );
-        let score_actual = " " + this.timer;
+        let score_actual = " " + this.timer.toFixed(3);
         let score_actual_transform = score_header_transform.times(
             Mat4.translation(0, -2, -5)
         );
@@ -417,7 +424,7 @@ export class PrecisionPlayground extends Scene {
             this.materials.timer_text.override({ color: score_color })
         );
         let prev_score_header = "Previous Time:";
-        let prev_score_color = hex_color("#EE4B2B");
+        let prev_score_color = hex_color("#00FF00");
         let prev_score_header_transform = Mat4.identity()
             .times(Mat4.translation(-20, 1+2, -15))
             .times(Mat4.scale(0.5, 0.5, 0.5));
@@ -428,7 +435,7 @@ export class PrecisionPlayground extends Scene {
             prev_score_header_transform,
             this.materials.timer_text.override({ color: score_color })
         );
-        let prev_score_actual = " " + this.previousTime;
+        let prev_score_actual = " " + this.previousTime.toFixed(3);
         let prev_score_actual_transform = prev_score_header_transform.times(
             Mat4.translation(0, -2, -5)
         );
@@ -438,6 +445,30 @@ export class PrecisionPlayground extends Scene {
             program_state,
             prev_score_actual_transform,
             this.materials.timer_text.override({ color: score_color })
+        );
+        let high_score_header = "Best Time:";
+        let high_score_color = hex_color("#00FF00");
+        let high_score_header_transform = Mat4.identity()
+            .times(Mat4.translation(-20, 1 + 8, -15)) 
+            .times(Mat4.scale(0.5, 0.5, 0.5));
+        this.shapes.text.set_string(high_score_header, context.context);
+        this.shapes.text.draw(
+            context,
+            program_state,
+            high_score_header_transform,
+            this.materials.timer_text.override({ color: high_score_color })
+        );
+    
+        let high_score_actual = " " + this.highScore.toFixed(3); 
+        let high_score_actual_transform = high_score_header_transform.times(
+            Mat4.translation(0, -2, -5)
+        );
+        this.shapes.text.set_string(high_score_actual, context.context);
+        this.shapes.text.draw(
+            context,
+            program_state,
+            high_score_actual_transform,
+            this.materials.timer_text.override({ color: high_score_color })
         );
         while (this.animation_queue.length > 0) {
             if (t > this.animation_queue[0].end_time) {

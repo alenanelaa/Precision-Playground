@@ -304,7 +304,7 @@ export class PrecisionPlayground extends Scene {
         this.shapes.wall1.draw(context, program_state, wall_transform5, this.materials.wall_1);
 
         // Ceiling
-        let ceiling_transform = model_transform.times(Mat4.translation(0, 15, -30)).times(Mat4.scale(40, 0.1, 14))
+        let ceiling_transform = model_transform.times(Mat4.translation(0, 15, -30)).times(Mat4.scale(40, 0.4, 14))
         this.shapes.ceiling.draw(context, program_state, ceiling_transform, this.materials.ceiling);
 
         // Tires

@@ -221,14 +221,24 @@ export class PrecisionPlayground extends Scene {
                     const initial_mouse_position = mouse_position(e);
                     this.camera.update_cam(0, 0, this.controls.sens, initial_mouse_position);
                 }
+                let lastCallTime = 0;
                 canvas.addEventListener("mousemove", (e) => {
-                    let del_x = e.movementX;
-                    let del_y = e.movementY;
+                    const currentTime = Date.now();
+                    const elapsedTime = currentTime - lastCallTime;
 
-                    if (!this.paused) {
-                        this.camera.update_cam(del_x, del_y, this.controls.sens);
-                    }            
+                    // Throttle the function to be called at most once every 16 milliseconds
+                    if (elapsedTime > 16) {
+                        let del_x = e.movementX;
+                        let del_y = e.movementY;
 
+                        if (!this.paused) {
+                            this.camera.update_cam(del_x, del_y, this.controls.sens);
+                        }
+
+                        lastCallTime = currentTime;
+                    }
+
+                    // Other logic related to mouse movement
                 });
                 this.shoot(mouse_position(e), program_state);
             }, {once: true});

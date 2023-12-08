@@ -19,7 +19,9 @@ or
 * **First Person Perspective** - player's cursor is locked to the center of the screen and the camera moves according to mouse movements
 * **Mouse Picking/Detection** - the game detects when the player's cursor is positioned correctly on click such that a target is hit
 * **Dynamic Object Instantiation** - the positions of the targets are randomized each round of the game
-* **Texture & Shading** - the game environment features various crates, tables, and other props with various textures and shading
+* **Game Timer** - game keeps track of the time taken between eliminating the first and last target to measure player's performance
+* **Environment Population** - the game environment features various crates, tables, and other props with various textures and shading
+* **Texture Coordinate Mapping** - textures applied to objects within environment mapped properly so textures are not stretched/distorted across objects
 * **Sound** - the game features toggleable background music as well as sound effects for when each target is hit and when all targets have been hit and the game is complete
 
 ## Contributors

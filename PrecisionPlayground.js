@@ -387,8 +387,8 @@ export class PrecisionPlayground extends Scene {
         let tire_transform2 = model_transform.times(Mat4.translation(-22, -3, -19)).times(Mat4.scale(2, 2, 1)).times(Mat4.rotation(80, 1, 0, 0)).times(Mat4.rotation(-10, 0, 1, 0))
         this.shapes.tire.draw(context, program_state, tire_transform2, this.materials.tire);
 
-        let tire_transform3 = model_transform.times(Mat4.translation(-20, -2, -20)).times(Mat4.scale(2, 2, 1)).times(Mat4.rotation(80, 1, 0, 0)).times(Mat4.rotation(10, 0, 1, 0))
-        this.shapes.tire.draw(context, program_state, tire_transform3, this.materials.tire);
+        //let tire_transform3 = model_transform.times(Mat4.translation(-20, -2, -20)).times(Mat4.scale(2, 2, 1)).times(Mat4.rotation(80, 1, 0, 0)).times(Mat4.rotation(10, 0, 1, 0))
+        //this.shapes.tire.draw(context, program_state, tire_transform3, this.materials.tire);
 
         // Crates
         let crate_transform1 = model_transform.times(Mat4.translation(26, -2.5, -24)).times(Mat4.scale(2.5, 2.5, 2.5))
@@ -397,24 +397,24 @@ export class PrecisionPlayground extends Scene {
         let crate_transform2 = model_transform.times(Mat4.translation(21.75, -3.25, -24)).times(Mat4.scale(1.75, 1.75, 1.75))
         this.shapes.crate.draw(context, program_state, crate_transform2, this.materials.crate);
 
-        let crate_transform3 = model_transform.times(Mat4.translation(32, 1, 26.88)).times(Mat4.scale(2, 2, 2))
-        this.shapes.crate.draw(context, program_state, crate_transform3, this.materials.crate);
+        //let crate_transform3 = model_transform.times(Mat4.translation(32, 1, 26.88)).times(Mat4.scale(2, 2, 2))
+        //this.shapes.crate.draw(context, program_state, crate_transform3, this.materials.crate);
 
-        let crate_transform4 = model_transform.times(Mat4.translation(28, -3, 26.88)).times(Mat4.scale(2, 2, 2))
-        this.shapes.crate.draw(context, program_state, crate_transform4, this.materials.crate);
+       // let crate_transform4 = model_transform.times(Mat4.translation(28, -3, 26.88)).times(Mat4.scale(2, 2, 2))
+       // this.shapes.crate.draw(context, program_state, crate_transform4, this.materials.crate);
 
         // Cardboard Boxes
-        let box_transform1 = model_transform.times(Mat4.translation(-30, -2.5, 26)).times(Mat4.scale(2.5,2.5, 2.5))
-        this.shapes.cardboard.draw(context, program_state, box_transform1, this.materials.cardboard);
+        // let box_transform1 = model_transform.times(Mat4.translation(-30, -2.5, 26)).times(Mat4.scale(2.5,2.5, 2.5))
+        // this.shapes.cardboard.draw(context, program_state, box_transform1, this.materials.cardboard);
 
         let box_transform2 = model_transform.times(Mat4.translation(-30, -2.5, -24)).times(Mat4.scale(2.5,2.5, 2.5))
         this.shapes.cardboard.draw(context, program_state, box_transform2, this.materials.cardboard);
 
-        let box_transform3 = model_transform.times(Mat4.translation(-35, -2.5, -24)).times(Mat4.scale(2.5,2.5, 2.5))
-        this.shapes.cardboard.draw(context, program_state, box_transform3, this.materials.cardboard);
+        //let box_transform3 = model_transform.times(Mat4.translation(-35, -2.5, -24)).times(Mat4.scale(2.5,2.5, 2.5))
+        //this.shapes.cardboard.draw(context, program_state, box_transform3, this.materials.cardboard);
 
-        let box_transform4 = model_transform.times(Mat4.translation(-33, -3.25, -19)).times(Mat4.scale(1.75,1.75, 1.75))
-        this.shapes.cardboard.draw(context, program_state, box_transform4, this.materials.cardboard);
+        //let box_transform4 = model_transform.times(Mat4.translation(-33, -3.25, -19)).times(Mat4.scale(1.75,1.75, 1.75))
+        //this.shapes.cardboard.draw(context, program_state, box_transform4, this.materials.cardboard);
 
         // Shipping Container
         let container_transform = model_transform.times(Mat4.translation(35, 0, 10)).times(Mat4.scale(5, 5, 15))

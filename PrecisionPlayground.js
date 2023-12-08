@@ -21,6 +21,10 @@ export class PrecisionPlayground extends Scene {
             ceiling: new Cube(),
             tire: new defs.Torus(15, 15),
             crate: new Cube(),
+            container: new Cube(),
+            table: new Cube(),
+            gun: new Cube(),
+            cardboard: new Cube(),
             text: new Text_Line(35)
         };
 
@@ -30,6 +34,7 @@ export class PrecisionPlayground extends Scene {
         // Wall texture
         this.shapes.wall1.arrays.texture_coord = this.shapes.wall1.arrays.texture_coord.map(x => x.times(12));
         this.shapes.wall2.arrays.texture_coord = this.shapes.wall2.arrays.texture_coord.map(x => x.times(3));
+
 
         // Skybox texture
         this.shapes.skybox.arrays.texture_coord = this.shapes.skybox.arrays.texture_coord.map(x => x.times(2));
@@ -72,6 +77,25 @@ export class PrecisionPlayground extends Scene {
                 color: hex_color("#000000"),
                 ambient: 1, diffusivity: 0.5, specularity: 0.5,
                 texture: new Texture("assets/crate.png")
+            }),
+            container: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                texture: new Texture("assets/container.png")
+            }),
+            table: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                texture: new Texture("assets/table.png")
+            }),
+            gun: new Material(new Phong_Shader(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.9,
+            }),
+            cardboard: new Material(new Textured_Phong(), {
+                color: hex_color("#000000"),
+                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                texture: new Texture("assets/cardboardbox.jpg")
             }),
             blue_sphere: new Material(new Phong_Shader(), {
                 color: hex_color("#0000ff"),
@@ -330,6 +354,55 @@ export class PrecisionPlayground extends Scene {
 
         let crate_transform2 = model_transform.times(Mat4.translation(21.75, -3.25, -24)).times(Mat4.scale(1.75, 1.75, 1.75))
         this.shapes.crate.draw(context, program_state, crate_transform2, this.materials.crate);
+
+        let crate_transform3 = model_transform.times(Mat4.translation(32, 1, 26.88)).times(Mat4.scale(2, 2, 2))
+        this.shapes.crate.draw(context, program_state, crate_transform3, this.materials.crate);
+
+        let crate_transform4 = model_transform.times(Mat4.translation(28, -3, 26.88)).times(Mat4.scale(2, 2, 2))
+        this.shapes.crate.draw(context, program_state, crate_transform4, this.materials.crate);
+
+        // Cardboard Boxes
+        let box_transform1 = model_transform.times(Mat4.translation(-30, -2.5, 26)).times(Mat4.scale(2.5,2.5, 2.5))
+        this.shapes.cardboard.draw(context, program_state, box_transform1, this.materials.cardboard);
+
+        let box_transform2 = model_transform.times(Mat4.translation(-30, -2.5, -24)).times(Mat4.scale(2.5,2.5, 2.5))
+        this.shapes.cardboard.draw(context, program_state, box_transform2, this.materials.cardboard);
+
+        let box_transform3 = model_transform.times(Mat4.translation(-35, -2.5, -24)).times(Mat4.scale(2.5,2.5, 2.5))
+        this.shapes.cardboard.draw(context, program_state, box_transform3, this.materials.cardboard);
+
+        let box_transform4 = model_transform.times(Mat4.translation(-33, -3.25, -19)).times(Mat4.scale(1.75,1.75, 1.75))
+        this.shapes.cardboard.draw(context, program_state, box_transform4, this.materials.cardboard);
+
+        // Shipping Container
+        let container_transform = model_transform.times(Mat4.translation(35, 0, 10)).times(Mat4.scale(5, 5, 15))
+        this.shapes.container.draw(context, program_state, container_transform, this.materials.container);
+
+        // Table
+        let table_transform = model_transform.times(Mat4.translation(-13, -2, 18)).times(Mat4.scale(3, 0.2, 5))
+        this.shapes.table.draw(context, program_state, table_transform, this.materials.table);
+
+        let leg_transform1 = model_transform.times(Mat4.translation(-9.5, -3, 22)).times(Mat4.scale(0.2, 1, 0.2))
+        this.shapes.table.draw(context, program_state, leg_transform1, this.materials.table);
+
+        let leg_transform2 = model_transform.times(Mat4.translation(-13.5, -3, 22)).times(Mat4.scale(0.2, 1, 0.2))
+        this.shapes.table.draw(context, program_state, leg_transform2, this.materials.table);
+
+        let leg_transform3 = model_transform.times(Mat4.translation(-9.5, -3, 14)).times(Mat4.scale(0.2, 1, 0.2))
+        this.shapes.table.draw(context, program_state, leg_transform3, this.materials.table);
+
+        let leg_transform4 = model_transform.times(Mat4.translation(-13.5, -3, 14)).times(Mat4.scale(0.2, 1, 0.2))
+        this.shapes.table.draw(context, program_state, leg_transform4, this.materials.table);
+
+        // "Gun"
+        let gun_transform1 = model_transform.times(Mat4.translation(-13, -1.7, 18)).times(Mat4.scale(0.2, 0.1, 0.6))
+        this.shapes.gun.draw(context, program_state, gun_transform1, this.materials.gun)
+
+        let gun_transform2 = model_transform.times(Mat4.translation(-13, -1.7, 19)).times(Mat4.scale(0.7, 0.1, 0.7))
+        this.shapes.gun.draw(context, program_state, gun_transform2, this.materials.gun)
+
+        let gun_transform3 = model_transform.times(Mat4.translation(-12, -1.7, 19)).times(Mat4.scale(0.7, 0.1, 0.2))
+        this.shapes.gun.draw(context, program_state, gun_transform3, this.materials.gun)
 
         this.camera.interface(context, program_state, this.shapes, this.materials); //drawing crosshair and eventually score
 

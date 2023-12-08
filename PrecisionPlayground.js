@@ -110,8 +110,8 @@ export class PrecisionPlayground extends Scene {
                 ambient: 1, diffusivity: 1, specularity: 1
             }),
             crosshair: new Material(new Textured_Phong(), {
-                color: hex_color("#000000"),
-                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                color: hex_color("#2300ff"),
+                ambient: 0.4, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/crosshair.png")
             }),
             skybox_material: new Material(new Textured_Phong(), {

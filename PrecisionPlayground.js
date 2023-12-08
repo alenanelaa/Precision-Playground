@@ -50,13 +50,13 @@ export class PrecisionPlayground extends Scene {
         this.materials = {
             floor: new Material(new Textured_Phong(), {
             color: hex_color("#000000"),
-            ambient: 1, diffusivity: 0.5, specularity: 0.5,
+            ambient: 0.8, diffusivity: 0.5, specularity: 0.5,
             texture: new Texture("assets/tile.jpg")
         }),
             timer_text: new Material(new defs.Textured_Phong(1), {
-                ambient: 0.5,
+                ambient: .6, diffusivity: 1,
                 texture: new Texture("assets/text.png"),
-                color: hex_color("#FF0000"),
+                color: hex_color("2300ff"),
             }),
             test: new Material(new Phong_Shader(), {
                 color: hex_color("#ffffff"),
@@ -69,7 +69,7 @@ export class PrecisionPlayground extends Scene {
             }),
             wall_2: new Material(new Textured_Phong(), { // Short Front Wall
                 color: hex_color("#000000"),
-                ambient: 1, diffusivity: 0.5, specularity: 0.5,
+                ambient: .8, diffusivity: 0.5, specularity: 0.5,
                 texture: new Texture("assets/shortwall.jpg")
             }),
             ceiling: new Material(new Textured_Phong(), {
@@ -106,8 +106,8 @@ export class PrecisionPlayground extends Scene {
                 texture: new Texture("assets/cardboardbox.jpg")
             }),
             blue_sphere: new Material(new Phong_Shader(), {
-                color: hex_color("#0000ff"),
-                ambient: 1, diffusivity: 0.5, specularity: 0.5
+                color: hex_color("#3ed1ee"),
+                ambient: 1, diffusivity: 1, specularity: 1
             }),
             crosshair: new Material(new Textured_Phong(), {
                 color: hex_color("#000000"),
@@ -521,8 +521,7 @@ export class PrecisionPlayground extends Scene {
             this.stopTimer();
             this.resetGame();
         }
-        let score_header = "Time:";
-        let score_color = hex_color("#00FF00");
+        let score_header = "Time:";  
         let score_header_transform = Mat4.identity()
             .times(Mat4.translation(-20, 1+5, -15))
             .times(Mat4.scale(0.5, 0.5, 0.5));
@@ -531,7 +530,7 @@ export class PrecisionPlayground extends Scene {
             context,
             program_state,
             score_header_transform,
-            this.materials.timer_text.override({ color: score_color })
+            this.materials.timer_text
         );
         let score_actual = " " + this.timer.toFixed(3);
         let score_actual_transform = score_header_transform.times(
@@ -542,7 +541,7 @@ export class PrecisionPlayground extends Scene {
             context,
             program_state,
             score_actual_transform,
-            this.materials.timer_text.override({ color: score_color })
+            this.materials.timer_text
         );
         let prev_score_header = "Previous Time:";
         let prev_score_header_transform = Mat4.identity()
@@ -553,7 +552,7 @@ export class PrecisionPlayground extends Scene {
             context,
             program_state,
             prev_score_header_transform,
-            this.materials.timer_text.override({ color: score_color })
+            this.materials.timer_text
         );
         let prev_score_actual = " " + this.previousTime.toFixed(3);
         let prev_score_actual_transform = prev_score_header_transform.times(
@@ -564,10 +563,9 @@ export class PrecisionPlayground extends Scene {
             context,
             program_state,
             prev_score_actual_transform,
-            this.materials.timer_text.override({ color: score_color })
+            this.materials.timer_text
         );
         let high_score_header = "Best Time:";
-        let high_score_color = hex_color("#00FF00");
         let high_score_header_transform = Mat4.identity()
             .times(Mat4.translation(-20, 1 + 8, -15)) 
             .times(Mat4.scale(0.5, 0.5, 0.5));
@@ -576,7 +574,7 @@ export class PrecisionPlayground extends Scene {
             context,
             program_state,
             high_score_header_transform,
-            this.materials.timer_text.override({ color: high_score_color })
+            this.materials.timer_text
         );
     
         let high_score_actual = " " + this.highScore.toFixed(3); 
@@ -588,10 +586,9 @@ export class PrecisionPlayground extends Scene {
             context,
             program_state,
             high_score_actual_transform,
-            this.materials.timer_text.override({ color: high_score_color })
+            this.materials.timer_text
         );
         let start_instruction = "Begin by clicking the crosshair";
-        let start_instruction_color = hex_color("#00FF00"); // Choose your own color
         let start_instruction_transform = Mat4.identity()
             .times(Mat4.translation(-12, 11, -12)) // Adjusted Y-position
             .times(Mat4.scale(0.5, 0.5, 0.5));
@@ -600,7 +597,7 @@ export class PrecisionPlayground extends Scene {
             context,
             program_state,
             start_instruction_transform,
-            this.materials.timer_text.override({ color: start_instruction_color })
+            this.materials.timer_text
         );
         
         while (this.animation_queue.length > 0) {

@@ -24,7 +24,9 @@ or
 
 Alena Zhu // alena.k.zhu@gmail.com // alenanelaa
 - Implemented first person shooter perspective, camera movement, and sound
+
 Raphael Santos // raphaelsantos@g.ucla.edu // raph-santos
 - Designed and implemented environment walls and props, applied textures
+
 Andrew Wang // uswangandrew@g.ucla.edu // thanosaw
 - Implemented mouse picking, target generation, statistics tracking, and game logic

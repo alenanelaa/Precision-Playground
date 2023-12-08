@@ -3,6 +3,8 @@
 ## The Game <br>
 Inspired by the Gridshot game mode in AimLabs, the player aims and shoots at various targets spread around the environment as fast as possible. The game records the fastest time of the player in a given session, and the goal of the player is to train their aim and achieve the lowest time that they can.
 
+![Precision Playground](https://github.com/alenanelaa/Precision-Playground/blob/master/demo.gif)
+
 ## Run the Game
 
 Go to: https://alenanelaa.github.io/Precision-Playground/ <br>

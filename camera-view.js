@@ -20,8 +20,8 @@ export default class FPSCam {
     }
 
     update_cam(del_x, del_y, sensitivity) {
-        this.t += del_x * (sensitivity * 0.75) / 50000;
-        this.p += (-1) * del_y * (sensitivity * 0.75) / 50000;
+        this.t += del_x * sensitivity / 50000;
+        this.p += (-1) * del_y * sensitivity / 50000;
         this.at = vec3(this.t, this.p, 1)
         this.lookAt = Mat4.look_at(vec3(this.x, this.y, this.z), this.at, vec3(0, 1, 0));
         return this.lookAt;

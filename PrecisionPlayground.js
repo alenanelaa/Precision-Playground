@@ -2,10 +2,10 @@ import FPSCam from './camera-view.js';
 import { defs, tiny } from './examples/common.js';
 import { Text_Line } from "./examples/text-demo.js";
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
+    vec, vec3, vec4, color, hex_color, Mat4, Light, Material, Scene, Texture,
 } = tiny;
 
-const { Cube, Square, Subdivision_Sphere, Axis_Arrows, Textured_Phong, Phong_Shader, Basic_Shader } = defs;
+const { Cube, Square, Textured_Phong, Phong_Shader } = defs;
 
 export class PrecisionPlayground extends Scene {
     constructor() {
@@ -27,6 +27,14 @@ export class PrecisionPlayground extends Scene {
             cardboard: new Cube(),
             text: new Text_Line(35)
         };
+
+        //audio schtuff
+        this.hit = document.getElementById("pop");
+        this.bgmusic = document.getElementById("bg");  
+        this.bgmusic.volume = 0.4;  
+        this.complete = document.getElementById("success");
+
+        document.addEventListener('click', () => this.playBackgroundMusic());        
 
         // Multiply tile on floor
         this.shapes.floor.arrays.texture_coord = this.shapes.floor.arrays.texture_coord.map(x => x.times(12));
@@ -123,9 +131,10 @@ export class PrecisionPlayground extends Scene {
         this.paused = false; //for pause and play (may wanna change it to be game states)
 
         this.controls = {
-            sens: 1
+            sens: 1,
+            sfx: true
         }
-        //Spawn 10 Spheres in random locations
+        //Spawn 10 Spheres random locations
         this.sphere_positions = [];
         for (let i = 0; i < 10; i++) {
             let new_position;
@@ -160,6 +169,41 @@ export class PrecisionPlayground extends Scene {
         this.start_time = performance.now();
 
         this.camera = new FPSCam(0, 0, 20);
+    }
+
+    make_control_panel() {
+        this.control_panel.innerHTML += "Game Options<br>";
+        this.new_line();
+        this.key_triggered_button("Toggle Background Music", ["m"], () => {
+            if (this.bgmusic.volume > 0) {
+                this.bgmusic.volume = 0;
+            }
+            else {
+                this.bgmusic.volume = 0.4;
+            }
+        });
+        this.new_line();
+        this.new_line();
+        this.key_triggered_button("Toggle SFX", ["x"], () => this.controls.sfx = !this.controls.sfx);
+        this.new_line();
+        this.new_line();
+
+        const sens_controls = this.control_panel.appendChild(document.createElement("span"));
+        this.key_triggered_button("-", ["o"], () =>
+            this.controls.sens -= 0.1, undefined, undefined, undefined, sens_controls);
+        this.live_string(box => {
+            box.textContent = "Sensitivity: " + this.controls.sens.toFixed(2)
+        }, sens_controls);
+        this.key_triggered_button("+", ["p"], () => 
+            this.controls.sens += 0.1, undefined, undefined, undefined, sens_controls);
+        
+    }
+
+    playBackgroundMusic() {
+        if (this.bgmusic.paused) {
+            this.bgmusic.loop = true;
+            this.bgmusic.play();
+        }
     }
 
     resetGame() {
@@ -250,7 +294,7 @@ export class PrecisionPlayground extends Scene {
     stopTimer() {
         if (this.timerInterval) {
             window.clearInterval(this.timerInterval);
-            console.log("Game Over - Timer:", this.timer.toFixed(3), "seconds");
+            //console.log("Game Over - Timer:", this.timer.toFixed(3), "seconds");
         }
     }
 
@@ -293,8 +337,6 @@ export class PrecisionPlayground extends Scene {
 
                         lastCallTime = currentTime;
                     }
-
-                    // Other logic related to mouse movement
                 });
                 this.shoot(mouse_position(e), program_state);
             }, {once: true});
@@ -449,8 +491,11 @@ export class PrecisionPlayground extends Scene {
                         // Check if the position is within a certain distance (e.g., 2 units) from the sphere
                         const distanceThreshold = 1;
                         if (Math.sqrt(distanceX ** 2 + distanceY ** 2 + distanceZ ** 2) < distanceThreshold) {
+                            if (this.controls.sfx) {
+                                this.hit.play();
+                            }
                             this.sphere_positions.splice(j, 1);
-                            console.log(`Target ${j + 1} Hit`);
+                            //console.log(`Target ${j + 1} Hit`);
                             this.animation_queue.length = 0;
                         }
                     }
@@ -469,6 +514,9 @@ export class PrecisionPlayground extends Scene {
         }
 
         if (this.sphere_positions.length === 0 && !this.gameOver) {
+            if (this.controls.sfx) {
+                this.complete.play();
+            }
             this.gameOver = true;
             this.stopTimer();
             this.resetGame();
@@ -497,7 +545,6 @@ export class PrecisionPlayground extends Scene {
             this.materials.timer_text.override({ color: score_color })
         );
         let prev_score_header = "Previous Time:";
-        let prev_score_color = hex_color("#00FF00");
         let prev_score_header_transform = Mat4.identity()
             .times(Mat4.translation(-20, 1+2, -15))
             .times(Mat4.scale(0.5, 0.5, 0.5));

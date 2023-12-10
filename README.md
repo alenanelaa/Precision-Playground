@@ -5,23 +5,35 @@ Inspired by the Gridshot game mode in AimLabs, the player aims and shoots at var
 
 ![Precision Playground](https://github.com/alenanelaa/Precision-Playground/blob/master/demo.gif)
 
-## Run the Game
+## Play
 
 Go to: https://alenanelaa.github.io/Precision-Playground/ <br>
-or
-1. Download the repository to your local machine
-2. Open a terminal in the Precision-Playground directory
-3. Run the command `python server.py` (If it says you don't have permission, run the command `chmod +x server.py` first)
-4. Open a browser and navigate to the url `http://localhost:8000/`
-5. Position the cursor in the center of the crosshair and left click to start the game
+
+## Running Locally
+1. Clone the repository to your local machine
+   ```
+     git clone https://github.com/alenanelaa/Precision-Playground.git
+     cd Precision-Playground
+   ```
+2. Run the command `python server.py` (If it says you don't have permission, run the command `chmod +x server.py` first)
+
+3. Open a browser and navigate to the url `http://localhost:8000/`
+  
+4. Position the cursor in the center of the crosshair and left click to start the game
 
 ## Features
 * **First Person Perspective** - player's cursor is locked to the center of the screen and the camera moves according to mouse movements
+
 * **Mouse Picking/Detection** - the game detects when the player's cursor is positioned correctly on click such that a target is hit
+
 * **Dynamic Object Instantiation** - the positions of the targets are randomized each round of the game
+  
 * **Game Timer** - game keeps track of the time taken between eliminating the first and last target to measure player's performance
+  
 * **Environment Population** - the game environment features various crates, tables, and other props with various textures and shading
+
 * **Texture Coordinate Mapping** - textures applied to objects within environment mapped properly so textures are not stretched/distorted across objects
+
 * **Sound** - the game features toggleable background music as well as sound effects for when each target is hit and when all targets have been hit and the game is complete
 
 ## Contributors
